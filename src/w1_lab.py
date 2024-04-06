@@ -7,7 +7,7 @@ import time
 # -----------------------------------------------------------------------------
 # 1a 1b 1c
 # -----------------------------------------------------------------------------
-table = np.full((10, 10, 10, 10, 3), 255, dtype='int')
+table = np.full((10, 10, 10, 10, 3), 255, dtype='uint8')
 
 w, h = table.shape[: 2]
 plt.imshow(np.transpose(table, (0, 2, 1, 3, 4)).reshape((100, 100, 3)))
@@ -44,7 +44,7 @@ plt.imshow(canvas)
 def generate_frame(shape: tuple, 
                    center: tuple, 
                    direction: tuple, 
-                   radius: int = 20):
+                   radius: int = 20) -> tuple:
     canvas = np.full(shape, 0, dtype='uint8')
     w, h = canvas.shape[:2]
 
