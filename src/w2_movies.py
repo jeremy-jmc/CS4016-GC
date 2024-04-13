@@ -52,3 +52,6 @@ plt.show()
 plt.imshow(new_img)
 plt.axis('off')
 plt.show()
+
+# https://towardsdatascience.com/background-matting-the-world-is-your-green-screen-83a3c4f0f635
+# https://medium.com/fnplus/blue-or-green-screen-effect-with-open-cv-chroma-keying-94d4a6ab2743

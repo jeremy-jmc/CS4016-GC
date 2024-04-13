@@ -34,25 +34,25 @@ def generate_random_rgb_mask(img_input: np.array,
 
 
 def project_colors(img_input: np.array, 
-                   vector_to_project: list = [255, 255, 255]
+                   mask_or_vector: list = [255, 255, 255]
                    ):
     """Project each pixel (color) of the image to a vector e.g. achromatic line
 
     Args:
         img_input (np.array): input image
-        vector_to_project (list, optional): Vector to calculate the projection of each color. Defaults to the achromatic line.
+        mask_or_vector (list, optional): Vector to calculate the projection of each color or mask with one vector to project for each pixel. Defaults to the achromatic line.
     """
     w, h = img_input.shape[:2]
-    vector_to_project = np.array(vector_to_project)
+    mask_or_vector = np.array(mask_or_vector)
 
     # generate projection mask
     mask = np.zeros((w, h, 3))
-    if vector_to_project.ndim == 1:
-        mask[:, :, :] = vector_to_project
+    if mask_or_vector.ndim == 1:
+        mask[:, :, :] = mask_or_vector
     else:
-        assert vector_to_project.shape == img_input.shape, \
+        assert mask_or_vector.shape == img_input.shape, \
             "projecting mask does not have the same shape of img_input"
-        mask = vector_to_project.copy()
+        mask = mask_or_vector.copy()
 
     # do projections
     new_img = np.zeros((w, h, 3))
