@@ -10,6 +10,25 @@ Computer Graphics
 - ray tracing
 - path tracing
 
+
+## openCV
+
+```py
+cv2.namedWindow
+cv2.imshow
+cv2.waitKey
+cv2.destroyAllWindows
+
+cv2.bitwise_and
+cv2.bitwise_not
+cv2.bitwise_or
+cv2.normalize
+cv2.resize
+cv2.inRange
+cv2.applyColorMap
+cv2.VideoCapture
+```
+
 ## blogs `TODO`
 
 - https://huggingface.co/blog/gaussian-splatting
