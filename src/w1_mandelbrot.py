@@ -12,10 +12,11 @@ import cmath
 import math
 import colorsys
 import numpy as np
+from numba import jit, prange
 import matplotlib.pyplot as plt
 
-
-def generate_mandelbrot(N: int = 1000, max_iter: int = 50, save: bool = False) -> np.ndarray:
+@jit(nopython=True)
+def generate_mandelbrot(N: int = 1000, max_iter: int = 50) -> np.ndarray:
     """An implementation of naive "scape time algorithm" 
     Reference: https://en.wikipedia.org/wiki/Mandelbrot_set
 
@@ -30,8 +31,8 @@ def generate_mandelbrot(N: int = 1000, max_iter: int = 50, save: bool = False) -
 
     img: np.ndarray = np.full((N, N), 255, dtype='uint8')
 
-    for i in range(N):
-        for j in range(N):
+    for i in prange(N):
+        for j in prange(N):
             x0 = -2.00 + j * (0.47 - (-2.00)) / N
             y0 = -1.12 + i * (1.12 - (-1.12)) / N
 
@@ -46,9 +47,6 @@ def generate_mandelbrot(N: int = 1000, max_iter: int = 50, save: bool = False) -
                 it += 1
             img[i, j] -= it
 
-    # save numpy array
-    if save:
-        np.save('mandelbrot.npy', img)
 
     return img
 
@@ -67,12 +65,11 @@ def visualize_array(array: np.ndarray, library: str = 'matplotlib') -> None:
         cv2.waitKey(0)
         cv2.destroyAllWindows()
     else:
-        raise ValueError(
-            f'Function visualize_array: library "{library}" not supported')
+        raise ValueError(f'Function visualize_array: library "{library}" not supported')
 
 # print(plt.colormaps())
-img = np.load('./mandelbrot.npy').astype('uint8')
-# generate_mandelbrot()
+img = generate_mandelbrot()
+# np.load('./mandelbrot.npy').astype('uint8')
 
 visualize_array(img, library='matplotlib')
 # visualize_array(img, library='opencv')

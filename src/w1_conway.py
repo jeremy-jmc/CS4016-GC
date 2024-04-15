@@ -24,7 +24,7 @@ def generate_frame(grid: np.array) -> np.array:
 
 N = 100
 M = 100
-grid = np.random.choice([0, 1], (N, M), True, [0.85, 0.15]).astype('uint8')
+grid = np.random.choice([0, 1], (N, M), True, [0.88, 0.12]).astype('uint8')
 print(grid.shape)
 plt.imshow(grid, cmap='gray')
 plt.axis('off')

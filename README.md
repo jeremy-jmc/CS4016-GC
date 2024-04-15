@@ -29,6 +29,16 @@ cv2.applyColorMap
 cv2.VideoCapture
 ```
 
+## project research
+- https://www.reddit.com/r/GraphicsProgramming/comments/15lot3z/where_to_find_cool_computer_graphics/
+    - https://igl.ethz.ch/code/
+        - https://igl.ethz.ch/projects/Laplacian-mesh-processing/Laplacian-mesh-editing/
+    -  https://nccastaff.bournemouth.ac.uk/jmacey/msc/ase/assignment/ideas/
+    - https://www.michaelfogleman.com/projects/
+    - https://kesen.realtimerendering.com/
+- https://vcg.leeds.ac.uk/research/student-projects/
+- https://graphicscodex.com/projects/projects/
+
 ## blogs `TODO`
 
 - https://huggingface.co/blog/gaussian-splatting
