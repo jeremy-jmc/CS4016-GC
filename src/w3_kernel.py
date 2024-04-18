@@ -16,29 +16,34 @@ if img_rgb.ndim == 2:
 # -----------------------------------------------------------------------------
 # Filter functions
 # -----------------------------------------------------------------------------
-def pascal_line(n):
+def pascal_line(n: int) -> np.array:
     line = np.zeros(n)
     line[0] = 1
     for i in range(1, n):
         line[i] = line[i-1] * (n - i) // i
     return line
 
-def get_filter(filter_type: str, order: int = 3):
+def bartlett_line(order: int) -> np.array:    
+    filter = np.zeros((1, order))[0]
+    filter[order//2] = order//2 + 1
+    l = order//2 - 1
+    r = order//2 + 1
+    while l >= 0 or r < order:
+        filter[l] = filter[r] = l + 1
+        l -= 1
+        r += 1
+
+    return filter
+
+def get_filter(filter_type: str, order: int = 3) -> np.array:
     if filter_type == 'box':
         return np.ones((order, order)) / order**2
     elif filter_type == 'bartlett':
-        # TODO: see np.bartlett
-        filter = np.zeros((1, order))[0]
-        filter[order//2] = order//2 + 1
-        l = order//2 - 1
-        r = order//2 + 1
-        while l >= 0 or r < order:
-            filter[l] = filter[r] = l + 1
-            l -= 1
-            r += 1
+        filter = bartlett_line(order)
         
         kernel = (filter * filter.reshape(-1, 1)).astype(np.float64)
         kernel /= np.sum(kernel)
+
         return kernel
     elif filter_type == 'gaussian':
         filter = pascal_line(order)
@@ -60,8 +65,6 @@ def get_filter(filter_type: str, order: int = 3):
             return mat
         else:
             return np.nan # ValueError('Invalid order for laplacian filter')
-    # elif filter_type == 'highpass':
-    #     pass
     else:
         raise ValueError('Invalid filter type')
 
@@ -79,7 +82,7 @@ def get_filter(filter_type: str, order: int = 3):
 
 
 @jit(nopython=True)
-def convolution(image, kernel):
+def convolution(image: np.array, kernel: np.array) -> np.array:
     height, width, channels = image.shape
     kernel_height, kernel_width = kernel.shape
 
@@ -87,11 +90,11 @@ def convolution(image, kernel):
     for i in prange(height):
         for j in prange(width):
             for c in prange(channels):
-                mat_base = np.zeros((kernel_height, kernel_width))
-                mat_base[:min(kernel_height, height-i), :min(kernel_width, width-j)] = \
+                kernel_window = np.zeros((kernel_height, kernel_width))
+                kernel_window[:min(kernel_height, height-i), :min(kernel_width, width-j)] = \
                     image[i:i+kernel_height, j:j+kernel_width, c]
 
-                new_image[i, j, c] = np.sum(mat_base * kernel)
+                new_image[i, j, c] = np.sum(kernel_window * kernel)
 
     return new_image.astype(np.uint8)
 
