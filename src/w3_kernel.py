@@ -134,7 +134,10 @@ for filter in ['box', 'bartlett', 'gaussian', 'laplacian']:
         for idx, tup in enumerate(zip(order_list, results)):
             order, img_conv = tup
             ax[idx + 1].axis('off')
-            img_diff = img_rgb - img_conv
+            if filter == 'laplacian':
+                img_diff = img_rgb + img_conv
+            else:
+                img_diff = img_rgb - img_conv
             ax[idx + 1].imshow(img_diff, cmap='gray')
             ax[idx + 1].set_title(f'inverted {filter} filter with order {order}')
         plt.show()
