@@ -106,7 +106,7 @@ def exercise01(input_image_path: str,
 
 if __name__ == '__main__':
     if len(sys.argv) != 4:
-        print("Usage: python script_name.py <input_image> <width> <height>")
+        print("Usage: python solution.py <input_image> <height> <width>")
         sys.exit('Invalid number of arguments')
     
 
