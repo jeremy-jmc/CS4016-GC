@@ -6,3 +6,5 @@
 *.fatbin
 *.mp4
 *.zip
+
+zips/**/output
