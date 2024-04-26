@@ -90,25 +90,28 @@ def convolution(image: np.array, kernel: np.array) -> np.array:
     return new_image.astype(np.uint8)
 
 
-workdir = os.path.join(os.getcwd(), 'output')
-os.makedirs(workdir, exist_ok=True)
+if __name__ == '__main__':
+    workdir = os.path.join(os.getcwd(), 'output', 'img')
+    os.makedirs(workdir, exist_ok=True)
 
-img : np.ndarray = cv2.imread('../lenna.png')     # read in BGR by default
+    img : np.ndarray = cv2.imread('../lenna.png')     # read in BGR by default
+    cv2.imwrite(os.path.join(workdir, 'original.png'), img)
+    cv2.imwrite(os.path.join(workdir, 'original_grayscale.png'), cv2.cvtColor(img, cv2.COLOR_BGR2GRAY))
 
-img_grayscale = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)[:, :, np.newaxis]
-img_bgr = img.copy()
+    img_grayscale = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)[:, :, np.newaxis]
+    img_bgr = img.copy()
 
-order_scales = [3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25]
+    order_scales = [3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25]
 
-for folder, img in zip(['grayscale', 'rgb'], [img_grayscale, img_bgr]):
-    for kernel_type in ['box', 'bartlett', 'gaussian', 'laplacian']:
-        for order in order_scales:
-            if kernel_type == 'laplacian' and order > 5:
-                continue
-            kernel = get_filter(kernel_type, order)
-            filtered_img = convolution(img, kernel)
+    for folder, img in zip(['grayscale', 'rgb'], [img_grayscale, img_bgr]):
+        for kernel_type in ['box', 'bartlett', 'gaussian', 'laplacian']:
+            for order in order_scales:
+                if kernel_type == 'laplacian' and order > 5:
+                    continue
+                kernel = get_filter(kernel_type, order)
+                filtered_img = convolution(img, kernel)
 
-            cv2.imwrite(os.path.join(workdir, f'{kernel_type}_{folder}_{order}.png'), filtered_img)
-            # print(os.path.join(workdir, f'{kernel_type}_{folder}_{order}.png'))
+                file_name = os.path.join(workdir, f'{kernel_type}_{folder}_{order}.png')
+                cv2.imwrite(file_name, filtered_img)
 
-    
+        

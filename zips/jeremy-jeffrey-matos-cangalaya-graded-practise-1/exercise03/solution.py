@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 min_val, max_val = 0, 255
 
-img : np.ndarray = cv2.imread('../lenna.png')     # read in BGR by default
+img : np.ndarray = cv2.imread('./lenna.png')     # read in BGR by default
 
 img_original = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
@@ -17,10 +17,18 @@ def on_change(val):
     min_val = max(0, int(center - val))
     max_val = min(255, int(center + val))
 
-    new_img_to_show = cv2.normalize(img_original, None, min_val, max_val, cv2.NORM_MINMAX)
-    cv2.imshow('Contrast', new_img_to_show)
+    # perform min-max normalization
+    normalized_img = (img_original - np.min(img_original)) / (np.max(img_original) - np.min(img_original))
+    # adjust the contrast of the image
+    normalized_img = normalized_img * (max_val - min_val) + min_val
+
+    normalized_img = np.uint8(normalized_img)
+    cv2.imshow('Contrast', normalized_img)
 
 cv2.imshow('Contrast', img_original)
 cv2.createTrackbar('Contrast Range', 'Contrast', 0, contrast_range, on_change)
-cv2.waitKey(0)
+while True:
+    key = cv2.waitKey(1)
+    if key == ord('q') or cv2.getWindowProperty('Contrast', cv2.WND_PROP_VISIBLE) < 1:
+        break
 cv2.destroyAllWindows()

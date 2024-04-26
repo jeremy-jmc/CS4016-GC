@@ -44,7 +44,7 @@ def exercise02(img_shape: tuple, n_cells: tuple, working_dir: str):
     board_filename = f'board_{h_pixels}_{h_cells}_{w_pixels}_{w_cells}.png'
     cv2.imwrite(os.path.join(working_dir, board_filename), board)
 
-    print(board.shape)
+    # print(board.shape)
 
 
 if __name__ == '__main__':
