@@ -51,3 +51,14 @@ cv2.VideoCapture
 - https://www.baeldung.com/cs/image-stitching
 
 ## blogs `DONE`
+
+
+in NlgN check if exists at least 2 segments that intersects in a set of N segments
+algorithms of sweep line
+    i, j cambiar a j, i
+
+<!-- intersection in a set of N segments -->
+ 
+point inside triangle
+    vector product
+    
