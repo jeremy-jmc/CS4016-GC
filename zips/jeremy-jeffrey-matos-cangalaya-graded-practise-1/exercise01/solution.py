@@ -46,17 +46,17 @@ def bilinear_interpolation(img: np.ndarray, new_shape: tuple) -> np.ndarray:
             y2 = min(math.ceil(new_j), input_width - 1)
 
             if (x1 == x2) and (y1 == y2):
-                # CASE 1: 
+                # CASE 1: scaled pixel is exactly on a original pixel
                 new_color = img[x1, y1, :]
             elif (x2 == x1):
-                # CASE 2:
+                # CASE 2: scaled pixel is exactly on a row
                 f_x_y1 = img[x1, y1, :]
                 f_x_y2 = img[x1, y2, :]
                 diff_y = y2 - y1
                 new_color = (y2 - new_j) / diff_y * f_x_y1 + \
                     (new_j - y1) / diff_y * f_x_y2
             elif (y2 == y1):
-                # CASE 3:
+                # CASE 3: scaled pixel is exactly on a column
                 f_x1_y = img[x1, y1, :]
                 f_x2_y = img[x2, y1, :]
                 diff_x = x2 - x1
@@ -64,7 +64,7 @@ def bilinear_interpolation(img: np.ndarray, new_shape: tuple) -> np.ndarray:
                 new_color = (x2 - new_i) / diff_x * f_x1_y + \
                     (new_i - x1) / diff_x * f_x2_y
             else:
-                # CASE 4:
+                # CASE 4: scaled pixel is not on a real pixel in both axis
                 diff_x = x2 - x1
                 f_x_y1 = (x2 - new_i) / diff_x * img[x1, y1, :] + \
                     (new_i - x1) / diff_x * img[x2, y1, :]

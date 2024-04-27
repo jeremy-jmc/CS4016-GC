@@ -18,3 +18,5 @@ e5:
 	python3 exercise05/solution.py
 e6:
 	python3 exercise06/solution.py
+zipfile:
+	zip -r jeremy-jeffrey-matos-cangalaya-graded-practise-1.zip .

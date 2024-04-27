@@ -15,6 +15,8 @@ colors_rgb = [
 ]
 
 def exercise02(img_shape: tuple, n_cells: tuple, working_dir: str):
+    """Generate a board with a given shape and number of cells"""
+    
     channels = 3
     h_pixels, w_pixels = img_shape
     h_cells, w_cells = n_cells
@@ -37,14 +39,9 @@ def exercise02(img_shape: tuple, n_cells: tuple, working_dir: str):
     board = np.reshape(np.transpose(board, (0, 2, 1, 3, 4)), target_shape)
     
     board = board[:h_pixels, :w_pixels, :]
-    # board = cv2.cvtColor(board, cv2.COLOR_RGB2BGR)
-    # plt.imshow(board)
-    # plt.axis('off')
-    # plt.show()
+
     board_filename = f'board_{h_pixels}_{h_cells}_{w_pixels}_{w_cells}.png'
     cv2.imwrite(os.path.join(working_dir, board_filename), board)
-
-    # print(board.shape)
 
 
 if __name__ == '__main__':

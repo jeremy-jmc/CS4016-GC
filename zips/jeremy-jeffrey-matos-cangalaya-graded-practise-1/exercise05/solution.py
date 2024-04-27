@@ -1,9 +1,9 @@
 import numpy as np
 import cv2
-import matplotlib.pyplot as plt
-from numba import jit, prange
 from tqdm import tqdm
+import matplotlib.pyplot as plt
 import os
+# from numba import jit, prange
 
 from fractions import Fraction
 np.set_printoptions(formatter={'all': lambda x: str(Fraction(x).limit_denominator())})
@@ -13,6 +13,7 @@ np.set_printoptions(formatter={'all': lambda x: str(Fraction(x).limit_denominato
 # Filter functions
 # -----------------------------------------------------------------------------
 def pascal_line(n: int) -> np.ndarray:
+    """Generate a Pascal line of a given order"""
     line = np.zeros(n)
     line[0] = 1
     for i in range(1, n):
@@ -20,7 +21,8 @@ def pascal_line(n: int) -> np.ndarray:
     return line
 
 
-def bartlett_line(order: int) -> np.ndarray:    
+def bartlett_line(order: int) -> np.ndarray:
+    """Generate a Bartlett line of a given order"""  
     line = np.zeros((1, order))[0]
     line[order//2] = order//2 + 1
     l = order//2 - 1
@@ -33,6 +35,7 @@ def bartlett_line(order: int) -> np.ndarray:
 
 
 def get_filter(filter_type: str, order: int = 3) -> np.ndarray:
+    """Generate a filter kernel of a given type and order"""
     kernel = None
 
     if filter_type == 'box':
@@ -62,7 +65,7 @@ def get_filter(filter_type: str, order: int = 3) -> np.ndarray:
         else:
             raise ValueError('Invalid order for laplacian filter')
     else:
-        raise ValueError('Invalid filter_type name. Options: ["box", "bartlett", "gaussian"]')
+        raise ValueError('Invalid filter_type name. Options: ["box", "bartlett", "gaussian", "laplacian"]')
     
     return kernel
 
@@ -71,16 +74,19 @@ def get_filter(filter_type: str, order: int = 3) -> np.ndarray:
 # Convolution operation from scratch
 # -----------------------------------------------------------------------------
 
+# @jit(nopython=True, parallel=True)
+def convolution(image: np.ndarray, kernel: np.ndarray) -> np.ndarray:
+    """Apply convolution operation to an image using a kernel"""
 
-@jit(nopython=True)
-def convolution(image: np.array, kernel: np.array) -> np.array:
     height, width, channels = image.shape
     kernel_height, kernel_width = kernel.shape
 
     new_image = np.zeros((height, width, channels))
-    for i in prange(height):
-        for j in prange(width):
-            for c in prange(channels):
+
+    # iterate over the image and apply the kernel in a sliding window fashion
+    for i in range(height):
+        for j in range(width):
+            for c in range(channels):
                 kernel_window = np.zeros((kernel_height, kernel_width))
                 kernel_window[:min(kernel_height, height-i), :min(kernel_width, width-j)] = \
                     image[i:i+kernel_height, j:j+kernel_width, c]
@@ -96,7 +102,8 @@ if __name__ == '__main__':
 
     img : np.ndarray = cv2.imread('../lenna.png')     # read in BGR by default
     cv2.imwrite(os.path.join(workdir, 'original.png'), img)
-    cv2.imwrite(os.path.join(workdir, 'original_grayscale.png'), cv2.cvtColor(img, cv2.COLOR_BGR2GRAY))
+    cv2.imwrite(os.path.join(workdir, 'original_grayscale.png'), 
+                cv2.cvtColor(img, cv2.COLOR_BGR2GRAY))
 
     img_grayscale = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)[:, :, np.newaxis]
     img_bgr = img.copy()
@@ -104,7 +111,7 @@ if __name__ == '__main__':
     order_scales = [3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25]
 
     for folder, img in zip(['grayscale', 'rgb'], [img_grayscale, img_bgr]):
-        for kernel_type in ['box', 'bartlett', 'gaussian', 'laplacian']:
+        for kernel_type in tqdm(['box', 'bartlett', 'gaussian', 'laplacian'], desc=f'Processing {folder} images', total=4):
             for order in order_scales:
                 if kernel_type == 'laplacian' and order > 5:
                     continue

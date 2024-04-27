@@ -1,10 +1,10 @@
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
-from numba import jit, prange
 import os
 
 def projection(img: np.ndarray, mask: np.ndarray) -> np.ndarray:
+    """Calculate the projection of an image onto a mask"""
     w, h = img.shape[:2]
     new_img = np.zeros((w, h, 3))
     for i in range(w):
@@ -15,8 +15,8 @@ def projection(img: np.ndarray, mask: np.ndarray) -> np.ndarray:
     return new_img.astype(np.uint8)
 
 
-@jit(nopython=True)
 def mask(img: np.ndarray) -> np.ndarray:
+    """Generate a mask with a blue circle in the center of the image"""
     height, width, _ = img.shape
 
     filter_array = np.full(img.shape, 255, dtype=np.uint8)
@@ -24,8 +24,8 @@ def mask(img: np.ndarray) -> np.ndarray:
     radius = min(height, width) // 2
     center = (width // 2, height // 2)
 
-    for i in prange(height):
-        for j in prange(width):
+    for i in range(height):
+        for j in range(width):
             if np.sqrt((i - center[1])**2 + (j - center[0])**2) < radius:
                 filter_array[i, j] = [0, 0, 255]
     
@@ -41,19 +41,3 @@ if __name__ == '__main__':
 
     cv2.imwrite('output/lenna-colorscale.png', 
                 cv2.cvtColor(projected_img, cv2.COLOR_RGB2BGR))
-
-
-"""
-plt.imshow(mask(img))
-plt.xticks([]), plt.yticks([])
-plt.show()
-
-
-plt.imshow(img_rgb)
-plt.xticks([]), plt.yticks([])
-plt.show()
-
-plt.imshow(projected_img)
-plt.xticks([]), plt.yticks([])
-plt.show()
-"""
