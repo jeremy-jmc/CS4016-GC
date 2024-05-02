@@ -1,6 +1,9 @@
 # CS4016-GC
 Computer Graphics
 
+## Books:
+- [Computer Graphics: Principles and Practice](https://students.aiu.edu/submissions/profiles/resources/onlineBook/a6A8H5_computer%20graphics.pdf)
+
 ## notes/keywords
 - fractal curve
 - gaussian splatting
@@ -53,6 +56,8 @@ cv2.VideoCapture
 ## blogs `DONE`
 
 
+## random notes
+
 in NlgN check if exists at least 2 segments that intersects in a set of N segments
 algorithms of sweep line
     i, j cambiar a j, i
@@ -61,4 +66,5 @@ algorithms of sweep line
  
 point inside triangle
     vector product
+
     
