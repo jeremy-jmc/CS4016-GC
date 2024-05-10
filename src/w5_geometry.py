@@ -112,9 +112,13 @@ for i in range(len(stack)):
 
 
 # -----------------------------------------------------------------------------
-# PROBLEM 2: Sweep line
+# PROBLEM 2: Sweep line intersections in a set of line segments
 # -----------------------------------------------------------------------------
-
+"""
+https://ics.uci.edu/~goodrich/teach/geom/notes/LineSweep.pdf
+https://i11www.iti.kit.edu/_media/teaching/winter2015/compgeom/algogeom-ws15-vl02.pdf
+https://cp-algorithms.com/geometry/intersecting_segments.html
+"""
 
 # -----------------------------------------------------------------------------
 # PROBLEM 3: Closest pair of points with sweep line
@@ -123,13 +127,20 @@ for i in range(len(stack)):
 # -----------------------------------------------------------------------------
 # PROBLEM 4: Area covered by N rectangles
 # -----------------------------------------------------------------------------
+"""
+Segment Tree
 
+"""
 
 
 # -----------------------------------------------------------------------------
 # PROBLEM 5: minimum flood fill operations
 # -----------------------------------------------------------------------------
 
+"""
+minimum flood fill operations to monochromatic
+https://people.maths.ox.ac.uk/scott/Papers/spanflood.pdf
+"""
 
 
 # -----------------------------------------------------------------------------
@@ -137,6 +148,7 @@ for i in range(len(stack)):
 # -----------------------------------------------------------------------------
 
 """
+https://en.wikipedia.org/wiki/Josephus_problem
 N personas en un circulo
     Mata dejando 1 mi causa
     Elige un salto k

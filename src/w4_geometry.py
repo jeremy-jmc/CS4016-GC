@@ -59,7 +59,20 @@ def on_segment(p, q, r):
     return False
 
 
-def check_line_intersection(s1, s2):
+def check_line_intersection(s1: Segment, s2: Segment):
+    """Check if two segments intersects
+
+    Args:
+        s1 (Segment): _description_
+        s2 (Segment): _description_
+
+    Returns:
+        bool: _description_
+
+    References:
+        https://www.geeksforgeeks.org/orientation-3-ordered-points/
+        https://www.geeksforgeeks.org/orientation-3-ordered-points/
+    """
     A, B = s2.p1.to_numpy(), s2.p2.to_numpy()
     C, D = s1.p1.to_numpy(), s1.p2.to_numpy()
 
@@ -127,6 +140,21 @@ segment_2 = Segment(Point(1.5, 2.5), Point(3, 1))
 # EXERCISE 3: Distance from a point to a line
 # -----------------------------------------------------------------------------
 
+# https://www.geeksforgeeks.org/minimum-distance-from-a-point-to-the-line-segment-using-vectors/
+random_segment = Segment(random_point(), random_point())
+point = random_point()
+
+print(point, random_segment)
+
+def distance_point_to_line(p: Point, s: Segment) -> float:
+    pass
+
+plt.figure(figsize=(4, 4))
+plt.plot([random_segment.p1.x, random_segment.p2.x], [random_segment.p1.y, random_segment.p2.y],
+            color='blue', marker='o', linestyle='-')
+plt.plot(point.x, point.y, color='red', marker='o')
+plt.plot([point.x, random_segment.p2.x], [point.y, random_segment.p2.y], color='red', linestyle='--')
+plt.show()
 
 # -----------------------------------------------------------------------------
 # EXERCISE 4: Check if a point P belongs to a triangle T
