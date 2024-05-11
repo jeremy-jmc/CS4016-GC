@@ -8,4 +8,6 @@ https://hingxyu.medium.com/gradient-domain-fusion-using-poisson-blending-8a7dc1b
 https://www.andrew.cmu.edu/course/16-726/projects/juyongk/proj2/
 https://inst.eecs.berkeley.edu/~cs194-26/fa15/Lectures/blending.pdf
 https://arxiv.org/pdf/1910.11495
+
+cg-class-7.pdf
 """

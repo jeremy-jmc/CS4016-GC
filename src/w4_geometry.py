@@ -46,7 +46,7 @@ def plot_segment(s1, s2, title=""):
     plt.show()
 
 
-def on_segment(p, q, r):
+def on_segment(p: np.ndarray, q: np.ndarray, r: np.ndarray) -> bool:
     """Check if point q is on segment pr"""
     p = Point(*p)
     q = Point(*q)
@@ -59,7 +59,7 @@ def on_segment(p, q, r):
     return False
 
 
-def check_line_intersection(s1: Segment, s2: Segment):
+def check_line_intersection(s1: Segment, s2: Segment) -> bool:
     """Check if two segments intersects
 
     Args:
@@ -89,6 +89,8 @@ def check_line_intersection(s1: Segment, s2: Segment):
     if np.sign(ba_ca) != np.sign(ba_da) and np.sign(dc_ac) != np.sign(dc_bc):
         return True
     # Collinear
+    # Dado que son colineales (situados sobre la misma recta, por lo tanto paralelos), 
+    # solo se verifica si un punto esta en el rango de las X e Y del otro segmento
     elif ba_ca == 0 and on_segment(A, C, B):
         return True
     elif ba_da == 0 and on_segment(A, D, B):
@@ -104,8 +106,10 @@ def check_line_intersection(s1: Segment, s2: Segment):
 # -----------------------------------------------------------------------------
 # EXERCISE 2: Check if two segments intersects (or not)
 # -----------------------------------------------------------------------------
+# https://cses.fi/problemset/task/2189
+# https://cp-algorithms.com/geometry/lines-intersection.html
 
-def cases(case_type = ""):
+def cases(case_type = "") -> tuple[Segment, Segment]:
     if case_type == 'collinear':
         return Segment(Point(1, 2), Point(3, 4)), \
             Segment(Point(4, 5), Point(6, 7))
@@ -159,7 +163,12 @@ plt.show()
 # -----------------------------------------------------------------------------
 # EXERCISE 4: Check if a point P belongs to a triangle T
 # -----------------------------------------------------------------------------
-
+"""
+https://cses.fi/problemset/task/2192
+IDEA: 
+Sumas el area de todos los triangulos formados por ese punto y 2 puntos consecutivos del triangulo/poligono
+Si la suma de las areas es igual al area del triangulo original, entonces el punto esta dentro del triangulo
+"""
 
 # -----------------------------------------------------------------------------
 # EXERCISE 5: 

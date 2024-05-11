@@ -30,7 +30,7 @@ def random_point(start: int = -10, end: int = 10) -> Point:
     return Point(random.randint(start, end), random.randint(start, end))
 
 
-def orientation(first: Point, second: Point, third: Point):
+def orientation(first: Point, second: Point, third: Point) -> int:
     """Determine the orientation of the triplet (first, second, third)
 
     Logic:
@@ -45,6 +45,9 @@ def orientation(first: Point, second: Point, third: Point):
     -1: clockwise
     0: collinear
     1: counterclockwise
+
+    Source:
+        https://www.geeksforgeeks.org/orientation-3-ordered-points/
     """
     val = (first.x - second.x) * (second.y - third.y) - (first.y - second.y) * (second.x - third.x)
     if val == 0:
@@ -54,9 +57,9 @@ def orientation(first: Point, second: Point, third: Point):
 
 def generate_points(n_points: int = 50) -> list:
     point_list = [random_point(1, 20) for _ in range(n_points)]
-    print(len(point_list))
+    print(f'Generated {len(point_list)} points')
     point_list = list(set(point_list))
-    print(len(point_list))
+    print(f'Unique points: {len(point_list)}')
 
     plt.figure(figsize=(4, 4))
     for p in point_list:
@@ -64,8 +67,17 @@ def generate_points(n_points: int = 50) -> list:
     plt.show()
     return point_list
 
+# -----------------------------------------------------------------------------
+# PROBLEM 1: Convex hull algorithms
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Jarvis March
-# * Graham scan
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+# * Graham's scan
+# -----------------------------------------------------------------------------
 
 point_list = generate_points()
 print(point_list)
@@ -95,20 +107,28 @@ for p in point_list:
 
 plt.figure(figsize=(10, 10))
 for p in point_list:
-    plt.plot(p.x, p.y, 'o', color='black', markersize=3)
+    plt.plot(p.x, p.y, 'o', color='black', markersize=5)
 
 for idx, p in enumerate(stack):
-    plt.plot(p.x, p.y, 'o', color='blue', markersize=3)
+    plt.plot(p.x, p.y, 'o', color='blue', markersize=5)
     angle = np.arctan2(p.y - pivot.y, p.x - pivot.x) * 180 / np.pi
     # plt.text(p.x, p.y, f'{idx}', fontsize=10, ha='right')
     plt.text(p.x, p.y, f'{angle:.2f}', fontsize=10, ha='left')
-plt.plot(pivot.x, pivot.y, 'o', color='red', markersize=3)
+
+plt.plot(pivot.x, pivot.y, 'o', color='red', markersize=5)
+
 for i in range(len(stack)):
-    plt.plot([stack[i].x, stack[(i + 1) % len(stack)].x], [stack[i].y, stack[(i + 1) % len(stack)].y], color='green', linestyle='--')
+    plt.plot([stack[i].x, stack[(i + 1) % len(stack)].x], 
+             [stack[i].y, stack[(i + 1) % len(stack)].y], color='green', linestyle='--')
+plt.show()
 
-
+# -----------------------------------------------------------------------------
 # Andrew's monotone chain
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Quickhull
+# -----------------------------------------------------------------------------
 
 
 # -----------------------------------------------------------------------------
@@ -118,18 +138,19 @@ for i in range(len(stack)):
 https://ics.uci.edu/~goodrich/teach/geom/notes/LineSweep.pdf
 https://i11www.iti.kit.edu/_media/teaching/winter2015/compgeom/algogeom-ws15-vl02.pdf
 https://cp-algorithms.com/geometry/intersecting_segments.html
+Line Segment Intersection - Computational Geometry book
 """
 
 # -----------------------------------------------------------------------------
 # PROBLEM 3: Closest pair of points with sweep line
 # -----------------------------------------------------------------------------
+# https://cses.fi/problemset/task/2194
 
 # -----------------------------------------------------------------------------
 # PROBLEM 4: Area covered by N rectangles
 # -----------------------------------------------------------------------------
 """
 Segment Tree
-
 """
 
 
