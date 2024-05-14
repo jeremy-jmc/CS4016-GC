@@ -1,0 +1,3 @@
+"""
+Implement Douglas-Peucker
+"""

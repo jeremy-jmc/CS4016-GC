@@ -1,0 +1,3 @@
+"""
+Implement Visvalingam-Whyatt
+"""
