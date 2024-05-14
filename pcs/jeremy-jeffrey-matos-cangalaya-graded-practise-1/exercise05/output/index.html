@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Resultados de Filtrado de Imagen</title>
+    <style>
+      table,
+      th,
+      td {
+        border: 1px solid black;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        padding: 10px;
+      }
+      th {
+        background-color: #f2f2f2;
+      }
+      img {
+        width: 150px; /* Set a smaller image size for display */
+      }
+    </style>
+  </head>
+  <body>
+    <table>
+      <tr>
+        <th>Imagen/Filtro</th>
+        <th>Original</th>
+        <th>3x3</th>
+        <th>5x5</th>
+        <th>7x7</th>
+        <th>9x9</th>
+        <th>11x11</th>
+        <th>13x13</th>
+        <th>15x15</th>
+        <th>17x17</th>
+        <th>19x19</th>
+        <th>21x21</th>
+        <th>23x23</th>
+        <th>25x25</th>
+      </tr>
+      <!-- Rows for box filters -->
+      <tr>
+        <td>Box Grayscale</td>
+        <td><img src="img/original_grayscale.png" alt="Original Grayscale" /></td>
+        <td><img src="img/box_grayscale_3.png" alt="Box Grayscale 3x3" /></td>
+        <td><img src="img/box_grayscale_5.png" alt="Box Grayscale 5x5" /></td>
+        <td><img src="img/box_grayscale_7.png" alt="Box Grayscale 7x7" /></td>
+        <td><img src="img/box_grayscale_9.png" alt="Box Grayscale 9x9" /></td>
+        <td>
+          <img src="img/box_grayscale_11.png" alt="Box Grayscale 11x11" />
+        </td>
+        <td>
+          <img src="img/box_grayscale_13.png" alt="Box Grayscale 13x13" />
+        </td>
+        <td>
+          <img src="img/box_grayscale_15.png" alt="Box Grayscale 15x15" />
+        </td>
+        <td>
+          <img src="img/box_grayscale_17.png" alt="Box Grayscale 17x17" />
+        </td>
+        <td>
+          <img src="img/box_grayscale_19.png" alt="Box Grayscale 19x19" />
+        </td>
+        <td>
+          <img src="img/box_grayscale_21.png" alt="Box Grayscale 21x21" />
+        </td>
+        <td>
+          <img src="img/box_grayscale_23.png" alt="Box Grayscale 23x23" />
+        </td>
+        <td>
+          <img src="img/box_grayscale_25.png" alt="Box Grayscale 25x25" />
+        </td>
+      </tr>
+      <tr>
+        <td>Box RGB</td>
+        <td><img src="img/original.png" alt="Original" /></td>
+        <td><img src="img/box_rgb_3.png" alt="Box RGB 3x3" /></td>
+        <td><img src="img/box_rgb_5.png" alt="Box RGB 5x5" /></td>
+        <td><img src="img/box_rgb_7.png" alt="Box RGB 7x7" /></td>
+        <td><img src="img/box_rgb_9.png" alt="Box RGB 9x9" /></td>
+        <td><img src="img/box_rgb_11.png" alt="Box RGB 11x11" /></td>
+        <td><img src="img/box_rgb_13.png" alt="Box RGB 13x13" /></td>
+        <td><img src="img/box_rgb_15.png" alt="Box RGB 15x15" /></td>
+        <td><img src="img/box_rgb_17.png" alt="Box RGB 17x17" /></td>
+        <td><img src="img/box_rgb_19.png" alt="Box RGB 19x19" /></td>
+        <td><img src="img/box_rgb_21.png" alt="Box RGB 21x21" /></td>
+        <td><img src="img/box_rgb_23.png" alt="Box RGB 23x23" /></td>
+        <td><img src="img/box_rgb_25.png" alt="Box RGB 25x25" /></td>
+      </tr>
+      <!-- Rows for bartlett filters -->
+      <tr>
+        <td>Bartlett Grayscale</td>
+        <td><img src="img/original_grayscale.png" alt="Original Grayscale" /></td>
+        <td>
+          <img
+            src="img/bartlett_grayscale_3.png"
+            alt="Bartlett Grayscale 3x3"
+          />
+        </td>
+        <td>
+          <img
+            src="img/bartlett_grayscale_5.png"
+            alt="Bartlett Grayscale 5x5"
+          />
+        </td>
+        <td>
+          <img
+            src="img/bartlett_grayscale_7.png"
+            alt="Bartlett Grayscale 7x7"
+          />
+        </td>
+        <td>
+          <img
+            src="img/bartlett_grayscale_9.png"
+            alt="Bartlett Grayscale 9x9"
+          />
+        </td>
+        <td>
+          <img
+            src="img/bartlett_grayscale_11.png"
+            alt="Bartlett Grayscale 11x11"
+          />
+        </td>
+        <td>
+          <img
+            src="img/bartlett_grayscale_13.png"
+            alt="Bartlett Grayscale 13x13"
+          />
+        </td>
+        <td>
+          <img
+            src="img/bartlett_grayscale_15.png"
+            alt="Bartlett Grayscale 15x15"
+          />
+        </td>
+        <td>
+          <img
+            src="img/bartlett_grayscale_17.png"
+            alt="Bartlett Grayscale 17x17"
+          />
+        </td>
+        <td>
+          <img
+            src="img/bartlett_grayscale_19.png"
+            alt="Bartlett Grayscale 19x19"
+          />
+        </td>
+        <td>
+          <img
+            src="img/bartlett_grayscale_21.png"
+            alt="Bartlett Grayscale 21x21"
+          />
+        </td>
+        <td>
+          <img
+            src="img/bartlett_grayscale_23.png"
+            alt="Bartlett Grayscale 23x23"
+          />
+        </td>
+        <td>
+          <img
+            src="img/bartlett_grayscale_25.png"
+            alt="Bartlett Grayscale 25x25"
+          />
+        </td>
+      </tr>
+      <tr>
+        <td>Bartlett RGB</td>
+        <td><img src="img/original.png" alt="Original" /></td>
+        <td><img src="img/bartlett_rgb_3.png" alt="Bartlett RGB 3x3" /></td>
+        <td><img src="img/bartlett_rgb_5.png" alt="Bartlett RGB 5x5" /></td>
+        <td><img src="img/bartlett_rgb_7.png" alt="Bartlett RGB 7x7" /></td>
+        <td><img src="img/bartlett_rgb_9.png" alt="Bartlett RGB 9x9" /></td>
+        <td><img src="img/bartlett_rgb_11.png" alt="Bartlett RGB 11x11" /></td>
+        <td><img src="img/bartlett_rgb_13.png" alt="Bartlett RGB 13x13" /></td>
+        <td><img src="img/bartlett_rgb_15.png" alt="Bartlett RGB 15x15" /></td>
+        <td><img src="img/bartlett_rgb_17.png" alt="Bartlett RGB 17x17" /></td>
+        <td><img src="img/bartlett_rgb_19.png" alt="Bartlett RGB 19x19" /></td>
+        <td><img src="img/bartlett_rgb_21.png" alt="Bartlett RGB 21x21" /></td>
+        <td><img src="img/bartlett_rgb_23.png" alt="Bartlett RGB 23x23" /></td>
+        <td><img src="img/bartlett_rgb_25.png" alt="Bartlett RGB 25x25" /></td>
+      </tr>
+      <!-- Rows for gaussian filters -->
+      <tr>
+        <td>Gaussian Grayscale</td>
+        <td><img src="img/original_grayscale.png" alt="Original Grayscale" /></td>
+        <td>
+          <img
+            src="img/gaussian_grayscale_3.png"
+            alt="Gaussian Grayscale 3x3"
+          />
+        </td>
+        <td>
+          <img
+            src="img/gaussian_grayscale_5.png"
+            alt="Gaussian Grayscale 5x5"
+          />
+        </td>
+        <td>
+          <img
+            src="img/gaussian_grayscale_7.png"
+            alt="Gaussian Grayscale 7x7"
+          />
+        </td>
+        <td>
+          <img
+            src="img/gaussian_grayscale_9.png"
+            alt="Gaussian Grayscale 9x9"
+          />
+        </td>
+        <td>
+          <img
+            src="img/gaussian_grayscale_11.png"
+            alt="Gaussian Grayscale 11x11"
+          />
+        </td>
+        <td>
+          <img
+            src="img/gaussian_grayscale_13.png"
+            alt="Gaussian Grayscale 13x13"
+          />
+        </td>
+        <td>
+          <img
+            src="img/gaussian_grayscale_15.png"
+            alt="Gaussian Grayscale 15x15"
+          />
+        </td>
+        <td>
+          <img
+            src="img/gaussian_grayscale_17.png"
+            alt="Gaussian Grayscale 17x17"
+          />
+        </td>
+        <td>
+          <img
+            src="img/gaussian_grayscale_19.png"
+            alt="Gaussian Grayscale 19x19"
+          />
+        </td>
+        <td>
+          <img
+            src="img/gaussian_grayscale_21.png"
+            alt="Gaussian Grayscale 21x21"
+          />
+        </td>
+        <td>
+          <img
+            src="img/gaussian_grayscale_23.png"
+            alt="Gaussian Grayscale 23x23"
+          />
+        </td>
+        <td>
+          <img
+            src="img/gaussian_grayscale_25.png"
+            alt="Gaussian Grayscale 25x25"
+          />
+        </td>
+      </tr>
+      <tr>
+        <td>Gaussian RGB</td>
+        <td><img src="img/original.png" alt="Original" /></td>
+        <td><img src="img/gaussian_rgb_3.png" alt="Gaussian RGB 3x3" /></td>
+        <td><img src="img/gaussian_rgb_5.png" alt="Gaussian RGB 5x5" /></td>
+        <td><img src="img/gaussian_rgb_7.png" alt="Gaussian RGB 7x7" /></td>
+        <td><img src="img/gaussian_rgb_9.png" alt="Gaussian RGB 9x9" /></td>
+        <td><img src="img/gaussian_rgb_11.png" alt="Gaussian RGB 11x11" /></td>
+        <td><img src="img/gaussian_rgb_13.png" alt="Gaussian RGB 13x13" /></td>
+        <td><img src="img/gaussian_rgb_15.png" alt="Gaussian RGB 15x15" /></td>
+        <td><img src="img/gaussian_rgb_17.png" alt="Gaussian RGB 17x17" /></td>
+        <td><img src="img/gaussian_rgb_19.png" alt="Gaussian RGB 19x19" /></td>
+        <td><img src="img/gaussian_rgb_21.png" alt="Gaussian RGB 21x21" /></td>
+        <td><img src="img/gaussian_rgb_23.png" alt="Gaussian RGB 23x23" /></td>
+        <td><img src="img/gaussian_rgb_25.png" alt="Gaussian RGB 25x25" /></td>
+      </tr>
+      <!-- Rows for laplacian filters -->
+      <tr>
+        <td>Laplacian Grayscale</td>
+        <td><img src="img/original_grayscale.png" alt="Original Grayscale" /></td>
+        <td>
+          <img
+            src="img/laplacian_grayscale_3.png"
+            alt="Laplacian Grayscale 3x3"
+          />
+        </td>
+        <td>
+          <img
+            src="img/laplacian_grayscale_5.png"
+            alt="Laplacian Grayscale 5x5"
+          />
+        </td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>Laplacian RGB</td>
+        <td><img src="img/original.png" alt="Original" /></td>
+        <td><img src="img/laplacian_rgb_3.png" alt="Laplacian RGB 3x3" /></td>
+        <td><img src="img/laplacian_rgb_5.png" alt="Laplacian RGB 5x5" /></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+    </table>
+  </body>
+</html>
