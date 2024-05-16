@@ -8,14 +8,15 @@ https://cses.fi/problemset/task/2195
 from tabulate import tabulate
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import random
 import time
 import gc
 
 def random_point(start: int = 1, end: int = 3) -> np.ndarray:
     """Generate a random point given a range"""
-    return np.array([random.randint(start, end) + random.uniform(-end, end), 
-            random.randint(start, end) + random.uniform(-end, end)])
+    return np.array([random.randint(start, end) + random.uniform(-end, end),
+                     random.randint(start, end) + random.uniform(-end, end)])
 
 
 def generate_points(n_points: int = 50, start: int = 1, end: int = 20) -> list:
@@ -44,6 +45,35 @@ def measure_runtime(func):
         # print(f"Runtime of {func.__name__}: {runtime} seconds")
         return runtime, result
     return wrapper
+
+
+def plot_convex_hull(point_list: list, convex_hull: list, bbox: list = [], convex_quad: list = []) -> None:
+    plt.figure(figsize=(5, 5))
+    for p in point_list:
+        plt.plot(p[0], p[1], 'o', color='black', markersize=5)
+
+    for i, p in enumerate(convex_hull):
+        plt.plot(p[0], p[1], 'o', color='blue', markersize=5)
+        plt.plot([p[0], convex_hull[(i + 1) % len(convex_hull)][0]], 
+                [p[1], convex_hull[(i + 1) % len(convex_hull)][1]], color='green', linestyle='--')
+    
+    if bbox:
+        x1, y1, x2, y2 = bbox
+        plt.plot([x1, x2, x2, x1, x1], [y1, y1, y2, y2, y1], color='red', linestyle='-', linewidth=1)
+
+    if convex_quad:
+        for i, current in enumerate(convex_quad):
+            next_ = convex_quad[(i + 1) % len(convex_quad)]
+            plt.plot([current[0], next_[0]], 
+                     [current[1], next_[1]], color='purple', linestyle='--')
+            
+        for p in point_list:
+            if point_inside_polygon(p, convex_quad):
+                plt.plot(p[0], p[1], 'o', color='orange', markersize=5, label='Interior point')
+    # plt.xticks([])
+    # plt.yticks([])
+    plt.show()
+
 
 # -----------------------------------------------------------------------------
 # Algorithm utilities
@@ -74,33 +104,53 @@ def orientation(first: np.ndarray, second: np.ndarray, third: np.ndarray) -> int
     return 1 if val > 0 else -1
 
 
-def plot_convex_hull(point_list: list, convex_hull: list, bbox: list = []) -> None:
-    plt.figure(figsize=(5, 5))
-    for p in point_list:
-        plt.plot(p[0], p[1], 'o', color='black', markersize=5)
+def point_inside_polygon(point: np.ndarray, polygon: list) -> bool:
+    # TODO: replace with the exercise 4
+    n = len(polygon)
+    z_components = [
+        np.sign(np.cross(polygon[(i + 1) % n] - polygon[i], point - polygon[i]))
+        for i in range(n)
+    ]
+    result = all(z == z_components[0] for z in z_components)
+    return result
 
-    for i, p in enumerate(convex_hull):
-        plt.plot(p[0], p[1], 'o', color='blue', markersize=5)
-        plt.plot([p[0], convex_hull[(i + 1) % len(convex_hull)][0]], 
-                [p[1], convex_hull[(i + 1) % len(convex_hull)][1]], color='green', linestyle='--')
-    if bbox:
-        x1, y1, x2, y2 = bbox
-        plt.plot([x1, x2, x2, x1, x1], [y1, y1, y2, y2, y1], color='red', linestyle='-', linewidth=1)
-    plt.xticks([])
-    plt.yticks([])
-    plt.show()
+
+def get_bbox_convexquad(point_list: list) -> tuple:
+    convex_quadrilateral = [
+        # juego de minimos con maximos para reducir el area del bbox
+        min(point_list, key=lambda p: (p[0], -p[1])), max(point_list, key=lambda p: (p[0], -p[1])),
+        min(point_list, key=lambda p: (p[1], p[0])), max(point_list, key=lambda p: (p[1], p[0]))
+    ]   # complexity: O(4*n)
+    point_min_x, point_max_x, point_min_y, point_max_y = convex_quadrilateral
+
+    bbox = [point_min_x[0], point_min_y[1],
+            point_max_x[0], point_max_y[1]]   # x1, y1, x2, y2
+    
+    # TODO: check correctness: How can I draw the quadrilateral with the correct order?
+    convex_quadrilateral = sorted(convex_quadrilateral, key=lambda p: (np.arctan2(p[1], p[0]) * 180 / np.pi))
+    return bbox, convex_quadrilateral
+
+
+def interior_point_elimination(point_list: list) -> list:
+    _, convex_quad = get_bbox_convexquad(point_list)
+    return [p for p in point_list if not point_inside_polygon(p, convex_quad)]
 
 # -----------------------------------------------------------------------------
 # Convex Hull algorithms
 # -----------------------------------------------------------------------------
 
 @measure_runtime
-def graham_scan(point_list: list) -> list:
+def graham_scan(point_list: list, point_elimination: bool = False) -> list:
     """Graham's scan algorithm to find the convex hull of a set of points
 
     Returns:
         list: list of points that form the convex hull
     """
+    if point_elimination:
+        print(f'\tReducing {len(point_list)} points to ', end='')
+        point_list = interior_point_elimination(point_list)
+        print(f'{len(point_list)} points')
+
     point_list = sorted(point_list, key=lambda p: (p[1], p[0]))
     pivot = point_list[0]#.pop(0)
 
@@ -123,23 +173,21 @@ def graham_scan(point_list: list) -> list:
 def jarvis_march(point_list: list) -> list:
     pass
 
-for n in [1e3, 1e4, 1e5]:   # , 1e6, 2*1e6, 5*1e6
-    point_list = generate_points(n, 0, n)
-    runtime, graham_scan_convex_hull = graham_scan(point_list)
+# TODO: metrics to pandas DataFrame
+for n in [1e3, 1e4, 1e5, 1e6, 2*1e6, 5*1e6]:
+    point_list = generate_points(n, -n, n)
+    runtime, graham_scan_convex_hull = graham_scan(point_list, True)
     print(f'Graham scan runtime for {int(n)} points: {runtime} seconds')
-    runtime, jarvis_march_convex_hull = jarvis_march(point_list)
-    print(f'Jarvis march runtime for {int(n)} points: {runtime} seconds')
+    # plot_convex_hull(point_list, graham_scan_convex_hull)
+    # runtime, jarvis_march_convex_hull = jarvis_march(point_list)
+    # print(f'Jarvis march runtime for {int(n)} points: {runtime} seconds')
     gc.collect()
 
 
-"""
-point_list = generate_points(100, -1000, 1000)
+# point_list = generate_points(100, -10, 10)
+# bbox, convex_quadrilateral = get_bbox_convexquad(point_list)
 
-bbox = [min(point_list, key=lambda p: p[0])[0], min(point_list, key=lambda p: p[1])[1],
-        max(point_list, key=lambda p: p[0])[0], max(point_list, key=lambda p: p[1])[1]]   # x1, y1, x2, y2
-
-runtime, graham_scan_convex_hull = graham_scan(point_list)
-plot_convex_hull(point_list, graham_scan_convex_hull, bbox)
+# runtime, graham_scan_convex_hull = graham_scan(point_list, True)
+# plot_convex_hull(point_list, graham_scan_convex_hull, [], convex_quadrilateral)
 
 # jarvis_march_convex_hull = jarvis_march(point_list)
-"""

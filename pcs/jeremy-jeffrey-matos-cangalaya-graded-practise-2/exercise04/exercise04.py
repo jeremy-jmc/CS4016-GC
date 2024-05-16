@@ -16,15 +16,17 @@ INPUT:
 
 REFERENCES:
     https://cses.fi/problemset/task/2192
-QUESTIONS:
+TODO: QUESTIONS
     - El triangulo puede tener 2 vertices iguales?
     - A veces el input puede estar clockwise o counterclockwise, entonces la verificacion es que todos tengan el mismo signo, vd?
+    - Que pasa si un punto es colineal con un lado del triangulo?
 """
 
 import matplotlib.pyplot as plt
 import numpy as np
+import random
 
-point = np.array([2, 2])
+point = np.array([random.uniform(0, 3.5), random.uniform(0, 3.5)])  # np.array([2, 2])
 polygon = np.array([[1, 1], [3, 2.5], [2, 3]])      # triangle
 n = len(polygon)
 
