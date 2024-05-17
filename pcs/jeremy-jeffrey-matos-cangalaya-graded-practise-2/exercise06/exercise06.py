@@ -19,8 +19,9 @@ import cProfile
 
 def random_point(start: int = 1, end: int = 3) -> tuple:
     """Generate a random point given a range"""
-    return (random.randint(start, end) + random.uniform(-end, end),
-            random.randint(start, end) + random.uniform(-end, end))
+    return np.array([random.randint(start, end), # + random.uniform(-end, end), 
+                     random.randint(start, end)# + random.uniform(-end, end)
+                     ])
 
 
 def generate_points(n_points: int = 50, start: int = 1, end: int = 20) -> list:
@@ -31,7 +32,7 @@ def generate_points(n_points: int = 50, start: int = 1, end: int = 20) -> list:
     # for p in point_list:
     #     plt.plot(p[0], p[1], 'o', color='black', markersize=3)
     # plt.show()
-    return [random_point(start, end) for _ in range(n_points)]
+    return np.array([random_point(start, end) for _ in range(n_points)])
 
 
 def measure_runtime(func):
@@ -45,32 +46,36 @@ def measure_runtime(func):
     return wrapper
 
 
-def plot_convex_hull(point_list: list, convex_hull: list, bbox: list = [], convex_quad: list = []) -> None:
-    plt.figure(figsize=(5, 5))
-    for p in point_list:
-        plt.plot(p[0], p[1], 'o', color='black', markersize=5)
+def plot_convex_hull(point_list: list, convex_hull: list, bbox: list = [], triangle_vectors: list = []) -> None:
+    plt.figure(figsize=(10, 10))
+    for p in tqdm(point_list, desc='Plotting points', total=len(point_list)):
+        plt.plot(p[0], p[1], 'o', color='black', markersize=5, alpha=0.5)
 
-    for i, p in enumerate(convex_hull):
+    for i, p in tqdm(enumerate(convex_hull), total=len(convex_hull), desc='Plotting convex hull'):
         plt.plot(p[0], p[1], 'o', color='blue', markersize=5)
         plt.plot([p[0], convex_hull[(i + 1) % len(convex_hull)][0]], 
                 [p[1], convex_hull[(i + 1) % len(convex_hull)][1]], color='green', linestyle='--')
+        plt.text(p[0], p[1], f'  {i}', fontsize=12, color='black', ha='left')
     
     if bbox:
         x1, y1, x2, y2 = bbox
-        plt.plot([x1, x2, x2, x1, x1], [y1, y1, y2, y2, y1], color='red', linestyle='-', linewidth=1)
+        plt.plot([x1, x2, x2, x1, x1], [y1, y1, y2, y2, y1], color='red', linestyle='-', linewidth=1, alpha=0.5)
 
-    if convex_quad:
-        for i, current in enumerate(convex_quad):
-            next_ = convex_quad[(i + 1) % len(convex_quad)]
-            plt.plot([current[0], next_[0]], 
-                     [current[1], next_[1]], color='purple', linestyle='--')
+    if triangle_vectors:
+        print(triangle_vectors)
+        for i, pair in enumerate(triangle_vectors):
+            from_, to_ = pair
+            # plt.plot(*from_, 'o', color='purple', markersize=10)
+            # plt.plot(*to_, 'o', color='purple', markersize=10)
+            plt.plot([from_[0], to_[0]], [from_[1], to_[1]], color='purple', linestyle='-', linewidth=2)
 
-        # for p in point_list:
-        #     if point_inside_polygon(p, convex_quad):
-        #         plt.plot(p[0], p[1], 'o', color='orange', markersize=5, label='Interior point')
+        point_elimination = interior_point_elimination(point_list)
+        for p in point_elimination:
+            plt.plot(p[0], p[1], 'o', color='orange', markersize=5, label='Interior point')
     # plt.xticks([])
     # plt.yticks([])
     plt.show()
+    plt.savefig(f'convex_hull_{len(point_list)}.png')
 
 
 # -----------------------------------------------------------------------------
@@ -84,10 +89,10 @@ def sign_of_cross_product(a: np.array, b: np.array) -> float:
     j = a[0] * b[1]
     k = a[1] * b[0]
     if j > k:
-        return 1
+        return LEFT
     elif j < k:
-        return -1
-    return 0
+        return RIGHT
+    return COLLINEAR
 
 def orientation(a: np.array, b: np.array, c: np.array) -> int:
     """Check the orientation of 3 points a, b, c 
@@ -97,17 +102,18 @@ def orientation(a: np.array, b: np.array, c: np.array) -> int:
         int: 1 if counterclockwise, -1 if clockwise, 0 if collinear
     """
     s = sign_of_cross_product((a[0] - b[0], a[1] - b[1]), (c[0] - b[0], c[1] - b[1]))
-    if s > 0:
-        return LEFT
-    elif s < 0:
-        return RIGHT
-    return COLLINEAR
+    return s
 
 def get_bbox_triangles(point_list: list) -> tuple:
     triangle_vectors = [
-        # juego de minimos con maximos para reducir el area del bbox
-        min(point_list, key=lambda p: (p[0], -p[1])), max(point_list, key=lambda p: (p[0], -p[1])),
-        min(point_list, key=lambda p: (p[1], p[0])), max(point_list, key=lambda p: (p[1], p[0]))
+        # max_y-min_x min_x-max_y
+        (max(point_list, key=lambda p: (p[1], -p[0])), min(point_list, key=lambda p: (p[0], -p[1]))),
+        # min_x-min_y min_y-min_x
+        (min(point_list, key=lambda p: (p[0], p[1])), min(point_list, key=lambda p: (p[1], p[0]))),
+        # min_y-max_x max_x-min_y
+        (min(point_list, key=lambda p: (p[1], -p[0])), max(point_list, key=lambda p: (p[0], -p[1]))),
+        # max_x-max_y max_y-max_x
+        (max(point_list, key=lambda p: (p[0], p[1])), max(point_list, key=lambda p: (p[1], p[0]))),
     ]   # complexity: O(8*n)
 
     # x1, y1, x2, y2. complexity: O(4*n)
@@ -118,95 +124,103 @@ def get_bbox_triangles(point_list: list) -> tuple:
 
 
 def interior_point_elimination(point_list: list) -> list:
-    _, convex_quad = get_bbox_triangles(point_list)
-    # return [p for p in point_list if not point_inside_polygon(p, convex_quad)]
-    return point_list
+    _, triangle_vectors = get_bbox_triangles(point_list)
+
+    def point_outside_convex_quad(point, convex_quad) -> bool:
+        for vector in convex_quad:
+            if orientation(vector[1], vector[0], point) != LEFT:
+                return True
+        return False
+
+    return np.array([p for p in point_list if point_outside_convex_quad(p, triangle_vectors)])
+    # return point_list
 
 # -----------------------------------------------------------------------------
 # Convex Hull algorithms
 # -----------------------------------------------------------------------------
 
-
-
-# @measure_runtime
+@measure_runtime
 def graham_scan(point_list: list, point_elimination: bool = False) -> list:
     """Graham's scan algorithm to find the convex hull of a set of points
 
     Returns:
         list: list of points that form the convex hull
-    """
+    """ 
     if point_elimination:
         print(f'\tReducing {len(point_list)} points to ', end='')
         point_list = interior_point_elimination(point_list)
         print(f'{len(point_list)} points')
     
-    print('calculando pivot')
-    pivot = min(point_list, key=lambda p: (p[1], p[0]))
-    
-    # dict_distance = {
-    #     p: (np.arctan2(p[1] - pivot[1], p[0] - pivot[0]) * 180 / np.pi, 
-    #                np.sqrt((p[0] - pivot[0]) ** 2 + (p[1] - pivot[1]) ** 2)) for p in point_list}
-    
-    def cmp(item1, item2):
-        delta_x1 = point_list[item1][0] - pivot[0]
-        delta_y1 = point_list[item1][1] - pivot[1]
-        delta_x2 = point_list[item2][0] - pivot[0]
-        delta_y2 = point_list[item2][1] - pivot[1]
-        return delta_y2 * delta_x1 - delta_x2 * delta_y1
+    print('finding pivot')
+    pivot = min(point_list, key=lambda p: (p[0], p[1]))
 
-    def pendiente1(x):
-        return (x[1] - pivot[1]) / (x[0] - pivot[0] + 1e-6)
+    def slope_wrt_pivot(idx):
+        # Calcula las diferencias en y y x
+        delta_y = point_list[idx][:, 1] - pivot[1]
+        delta_x = point_list[idx][:, 0] - pivot[0]
+        
+        slopes = np.zeros(delta_y.shape)
+        mask_zero = delta_x == 0
+        slopes[mask_zero] = np.inf
+        slopes[~mask_zero] = np.divide(delta_y[~mask_zero], delta_x[~mask_zero])
+
+        return slopes # np.divide(delta_y, delta_x)
     
-    print('ordenando puntos con respecto a pivot')
+    print('sorting')
     # sort the points based on the polar angle with respect to the pivot, else by distance to pivot
     indices = np.array(range(len(point_list)))
-    predicate = pendiente1(indices)
+    predicate = slope_wrt_pivot(indices)
     order = np.argsort(predicate)
     point_list = [point_list[i] for i in order]
 
     print('graham scan')
     stack = deque()
     stack.append(pivot)
-    # i = 0
-    for p in point_list:    # tqdm(point_list, total=len(point_list))
+    
+    for p in point_list:
         while len(stack) > 1 and \
             orientation(stack[-2], stack[-1], p) != RIGHT:
             stack.pop()
         stack.append(p)
-        # print(f'punto: {i} de {len(point_list)}')
-        # i = i + 1
-    print('final')
+    
     return stack
 
 @measure_runtime
 def jarvis_march(point_list: list) -> list:
     pass
 
-n = 5000000
+# random.seed(123)
+n = int(1000)
 print('input started')
-point_list = generate_points(n, -n, n)
+point_list = generate_points(n, -n//8, n//8)
+bbox, triangle_vectors = get_bbox_triangles(point_list)
 print('input done')
 # TODO: cProfile tree
-cProfile.run('graham_scan(point_list, False)')
+cProfile.run('runtime, graham_scan_convex_hull = graham_scan(point_list, True)')
+print('runtime:', runtime)
+plot_convex_hull(point_list, graham_scan_convex_hull, bbox, triangle_vectors)
+
 
 """
 # TODO: metrics to pandas DataFrame
-for n in [5000000]:   # 1e3, 1e4, 1e5, 1e6, 2*1e6, 
+for n in [1e3, 1e4, 1e5, 1e6, 2*1e6, 5*1e6]:
+    n = int(n) 
     print('input started')
     point_list = generate_points(n, -n, n)
     print('input done')
     runtime, graham_scan_convex_hull = graham_scan(point_list, False)
-    print(f'Graham scan runtime for {int(n)} points: {runtime} seconds')
+    print(f'Graham scan runtime for {int(n)} points: {runtime:.5f} seconds')
     # plot_convex_hull(point_list, graham_scan_convex_hull)
     # runtime, jarvis_march_convex_hull = jarvis_march(point_list)
     # print(f'Jarvis march runtime for {int(n)} points: {runtime} seconds')
     gc.collect()
 """
 
-# point_list = generate_points(100, -10, 10)
+# point_list = generate_points(1000000, -10, 10)
 # bbox, convex_quadrilateral = get_bbox_triangles(point_list)
 
 # runtime, graham_scan_convex_hull = graham_scan(point_list, True)
 # plot_convex_hull(point_list, graham_scan_convex_hull, bbox, [])
+# print(runtime)
 
 # jarvis_march_convex_hull = jarvis_march(point_list)
