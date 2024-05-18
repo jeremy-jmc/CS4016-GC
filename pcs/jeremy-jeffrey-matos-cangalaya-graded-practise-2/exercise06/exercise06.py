@@ -16,6 +16,7 @@ import time
 import gc
 from tqdm import tqdm
 from collections import deque
+from IPython.display import display
 from functools import cmp_to_key
 import cProfile
 
@@ -44,9 +45,9 @@ def generate_points(n_points: int = 50, start: int = -50, end: int = 50) -> list
     return np.array([random_point(start, end) for _ in range(n_points)])
 
 
-def measure_runtime(algorithm, points) -> float:
+def measure_runtime(algorithm, sorted_args: dict) -> float:
     start_time = time.time()
-    algorithm(points)
+    algorithm(**sorted_args)
     end_time = time.time()
     return end_time - start_time
 
@@ -124,6 +125,7 @@ def orientation(a: np.ndarray, b: np.ndarray, c: np.ndarray) -> int:
 
 
 def get_bbox_triangles(point_list: list) -> tuple:
+    # TODO: linearize
     triangle_vectors = [
         # max_y-min_x min_x-max_y
         (max(point_list, key=lambda p: (p[1], -p[0])),
@@ -146,9 +148,42 @@ def get_bbox_triangles(point_list: list) -> tuple:
     return bbox, triangle_vectors
 
 
+def get_triangle_vectors(point_list: list) -> tuple:
+    max_y_min_x = min_x_max_y = min_x_min_y = min_y_min_x = point_list[0]
+    min_y_max_x = max_x_min_y = max_x_max_y = max_y_max_x = point_list[0]
+
+    for p in point_list:
+        if (p[1], -p[0]) > (max_y_min_x[1], -max_y_min_x[0]):
+            max_y_min_x = p
+        if (p[0], -p[1]) < (min_x_max_y[0], -min_x_max_y[1]):
+            min_x_max_y = p
+        if (p[0], p[1]) < (min_x_min_y[0], min_x_min_y[1]):
+            min_x_min_y = p
+        if (p[1], p[0]) < (min_y_min_x[1], min_y_min_x[0]):
+            min_y_min_x = p
+        if (p[1], -p[0]) < (min_y_max_x[1], -min_y_max_x[0]):
+            min_y_max_x = p
+        if (p[0], -p[1]) > (max_x_min_y[0], -max_x_min_y[1]):
+            max_x_min_y = p
+        if (p[0], p[1]) > (max_x_max_y[0], max_x_max_y[1]):
+            max_x_max_y = p
+        if (p[1], p[0]) > (max_y_max_x[1], max_y_max_x[0]):
+            max_y_max_x = p
+
+    triangle_vectors = [
+        (max_y_min_x, min_x_max_y),
+        (min_x_min_y, min_y_min_x),
+        (min_y_max_x, max_x_min_y),
+        (max_x_max_y, max_y_max_x),
+    ]
+
+    return triangle_vectors
+
 # TODO: vectorize
+
+
 def interior_point_elimination(point_list: np.ndarray) -> list:
-    _, triangle_vectors = get_bbox_triangles(point_list)
+    triangle_vectors = get_triangle_vectors(point_list)
 
     def point_outside_convex_quad(point, convex_quad) -> bool:
         for vector in convex_quad:
@@ -171,11 +206,11 @@ def graham_scan(point_list: list, point_elimination: bool = False) -> list:
         list: list of points that form the convex hull
     """
     if point_elimination:
-        print(f'\tReducing {len(point_list)} points to ', end='')
+        # print(f'\tReducing {len(point_list)} points to ', end='')
         point_list = interior_point_elimination(point_list)
-        print(f'{len(point_list)} points')
+        # print(f'{len(point_list)} points')
 
-    print('finding pivot')
+    # print('finding pivot')
     pivot = min(point_list, key=lambda p: (p[0], p[1]))
 
     def slope_wrt_pivot(idx: np.ndarray) -> np.ndarray:
@@ -191,14 +226,15 @@ def graham_scan(point_list: list, point_elimination: bool = False) -> list:
 
         return slopes  # np.divide(delta_y, delta_x)
 
-    print('sorting')
+    # print('sorting')
+
     # sort the points based on the polar angle with respect to the pivot, else by distance to pivot
     indices = np.array(range(len(point_list)))
     predicate = slope_wrt_pivot(indices)
     order = np.argsort(predicate)
     point_list = point_list[order]  # [point_list[i] for i in order]
 
-    print('graham scan')
+    # print('graham scan')
     stack = deque()
     stack.append(pivot)
 
@@ -215,18 +251,17 @@ def jarvis_march(point_list: list) -> list:
     pass
 
 
-"""
-n = int(5*1e6)
+n = int(1e5)
 print('input started')
 point_list = generate_points(n, -n, n)  # //8 //8
-bbox, triangle_vectors = get_bbox_triangles(point_list)
+bbox, _ = get_bbox_triangles(point_list)
+triangle_vectors = get_triangle_vectors(point_list)
 print('input done')
 # TODO: cProfile tree
-cProfile.run('graham_scan_convex_hull = graham_scan(point_list, False)')    # , 'restats'
-# runtime, 
-# print('runtime:', runtime)
+# , 'restats'
+cProfile.run('graham_scan_convex_hull = graham_scan(point_list, True)')
 # plot_convex_hull(point_list, graham_scan_convex_hull, bbox, triangle_vectors)
-"""
+
 
 """
 # TODO: metrics to pandas DataFrame
@@ -296,10 +331,37 @@ def generate_points_rectangle_border(n, width=1.0, height=1.0) -> np.ndarray:
     return np.column_stack((x, y))
 
 
+def generate_points_above_parabola(n, a=1, b=0, c=0, x_range=(-5, 5), y_max=None) -> np.ndarray:
+    """Generate points above a parabola"""
+    x = np.random.rand(n) * (x_range[1] - x_range[0]) + x_range[0]
+    parabola_y = a * x**2 + b * x + c
+
+    if y_max is None:
+        y_max = np.max(parabola_y) + 5
+    y = np.random.rand(n) * (y_max - parabola_y) + parabola_y
+    return np.column_stack((x, y))
+
+
+def generate_points_under_parabola(n, a=1, b=0, c=0, x_range=(-5, 5)) -> np.ndarray:
+    """Generate points under a parabola"""
+
+    x = np.random.rand(n) * (x_range[1] - x_range[0]) + x_range[0]
+    parabola_y = a * x**2 + b * x + c
+
+    y_min = np.min([0, np.min(parabola_y)])
+    y = np.random.rand(n) * (parabola_y - y_min) + y_min
+    return np.column_stack((x, y))
+
+
 def generate_points_parabola_border(n, a=1, b=0, c=0) -> np.ndarray:
+    """Generate points in parabola border"""
     x = np.random.rand(n) * 10 - 5
     y = a * x**2 + b * x + c
     return np.column_stack((x, y))
+
+# -----------------------------------------------------------------------------
+# Benchmark
+# -----------------------------------------------------------------------------
 
 
 def benchmark(algorithms: list, sizes: list) -> pd.DataFrame:
@@ -308,30 +370,53 @@ def benchmark(algorithms: list, sizes: list) -> pd.DataFrame:
         'Circle Border': generate_points_circle_border,
         'Rectangle': generate_points_rectangle,
         'Rectangle Border': generate_points_rectangle_border,
-        # 'Parabola': ,
+        'Parabola': generate_points_above_parabola,
         'Parabola Border': generate_points_parabola_border
     }
 
     results = []
     for size in sizes:
-        for name, generator in distributions.items():
+        for name, generator in tqdm(distributions.items(), desc='Distributions', total=len(distributions)):
             points = generator(int(size))
-            bbox, triangle_vector = get_bbox_triangles(points)
-            plot_convex_hull(points, [], [], triangle_vector)
-            # for algorithm_name, algorithm in algorithms.items():
-            #     runtime = measure_runtime(algorithm, points)
-            #     results.append({
-            #         'Algorithm': algorithm_name,
-            #         'Distribution': name,
-            #         'Points': size,
-            #         'Runtime': runtime
-            #     })
+            for algorithm_name, algorithm in algorithms.items():
+                for point_elimination in [True, False]:
+                    runtime = measure_runtime(
+                        algorithm, {'point_list': points, 'point_elimination': point_elimination})
+                    results.append({
+                        'Algorithm': algorithm_name,
+                        'Distribution': name,
+                        'Points': size,
+                        'Point Elimination': point_elimination,
+                        'Runtime': runtime
+                    })
 
     df = pd.DataFrame(results)
     return df
 
 
-algorithms = [graham_scan]  # , jarvis_march
-point_number = [1e3]   # , 1e4, 1e5, 1e6, 2*1e6, 5*1e6
+algorithms = {'graham_scan': graham_scan}  # , jarvis_march
+point_number = [1000, 10000, 100000]   # , 1000000, 2*1e6, 5*1e6
 
-benchmark(algorithms, point_number)
+df = benchmark(algorithms, point_number)
+df.to_csv('benchmark.csv')
+
+distributions = df['Distribution'].unique()
+for distribution in distributions:
+    for algorithm in algorithms.keys():
+        plt.figure(figsize=(5, 5))
+        plt.title(f'{algorithm} - {distribution}')
+        for point_elimination in [True, False]:
+            df_filtered = df[(df['Algorithm'] == algorithm) & (
+                df['Distribution'] == distribution) & (df['Point Elimination'] == point_elimination)]
+            plt.plot(df_filtered['Points'], df_filtered['Runtime'], label='Point Elimination' if point_elimination else 'No Point Elimination',
+                     marker='o', linestyle='--', markersize=5)
+
+        plt.xscale('log')
+        plt.yscale('log')
+        plt.xticks(point_number, rotation=45)
+        plt.xlabel('Number of Points')
+        plt.ylabel('Runtime (seconds)')
+        plt.legend()
+        plt.show()
+
+display(df)
