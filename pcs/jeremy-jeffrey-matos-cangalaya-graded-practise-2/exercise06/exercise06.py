@@ -45,9 +45,9 @@ def generate_points(n_points: int = 50, start: int = -50, end: int = 50) -> list
     return np.array([random_point(start, end) for _ in range(n_points)])
 
 
-def measure_runtime(algorithm, sorted_args: dict) -> float:
+def measure_runtime(algorithm, points, point_elimination) -> float:
     start_time = time.time()
-    algorithm(**sorted_args)
+    _ = algorithm(points, point_elimination)
     end_time = time.time()
     return end_time - start_time
 
@@ -179,20 +179,37 @@ def get_triangle_vectors(point_list: list) -> tuple:
 
     return triangle_vectors
 
-# TODO: vectorize
+
+def orientation_vectorized(a: np.ndarray, b: np.ndarray, points: np.ndarray) -> np.ndarray:
+    ab = np.array([a - b])
+    cb = points - b
+    cross_product = ab[:, 0] * cb[:, 1] - ab[:, 1] * cb[:, 0]
+    
+    result = np.full(points.shape[0], COLLINEAR, dtype=int)
+    result[cross_product > 0] = LEFT
+    result[cross_product < 0] = RIGHT
+    
+    return result
 
 
-def interior_point_elimination(point_list: np.ndarray) -> list:
+def points_outside_convex_quad(points: np.ndarray, convex_quad: list) -> np.ndarray:
+    outside = np.full(points.shape[0], False, dtype=bool)
+    for vector in convex_quad:
+        axis, direction = vector
+        orientation_result = orientation_vectorized(direction, axis, points)
+        # it is sufficient that a point is collinear or to the right of a vector 
+        # for it not to belong to the quadrilateral.
+        outside |= (orientation_result != LEFT)
+    
+    return outside
+
+
+def interior_point_elimination(point_list: np.ndarray) -> np.ndarray:
     triangle_vectors = get_triangle_vectors(point_list)
+    point_outside = points_outside_convex_quad(point_list, triangle_vectors)
+    # print(f'Eliminated {np.sum((point_outside == False))} points')
+    return point_list[point_outside]
 
-    def point_outside_convex_quad(point, convex_quad) -> bool:
-        for vector in convex_quad:
-            if orientation(vector[1], vector[0], point) != LEFT:
-                return True
-        return False
-
-    return np.array([p for p in point_list if point_outside_convex_quad(p, triangle_vectors)])
-    # return point_list
 
 # -----------------------------------------------------------------------------
 # Convex Hull algorithms
@@ -247,36 +264,13 @@ def graham_scan(point_list: list, point_elimination: bool = False) -> list:
     return stack
 
 
-def jarvis_march(point_list: list) -> list:
-    pass
+def jarvis_march(point_list: list, point_elimination: bool = False) -> list:
+    """Jarvis march algorithm to find the convex hull of a set of points"""
 
-
-n = int(1e5)
-print('input started')
-point_list = generate_points(n, -n, n)  # //8 //8
-bbox, _ = get_bbox_triangles(point_list)
-triangle_vectors = get_triangle_vectors(point_list)
-print('input done')
-# TODO: cProfile tree
-# , 'restats'
-cProfile.run('graham_scan_convex_hull = graham_scan(point_list, True)')
-# plot_convex_hull(point_list, graham_scan_convex_hull, bbox, triangle_vectors)
-
-
-"""
-# TODO: metrics to pandas DataFrame
-for n in [1e3, 1e4, 1e5, 1e6, 2*1e6, 5*1e6]:
-    n = int(n) 
-    print('input started')
-    point_list = generate_points(n, -n, n)
-    print('input done')
-    runtime, graham_scan_convex_hull = graham_scan(point_list, False)
-    print(f'Graham scan runtime for {int(n)} points: {runtime:.5f} seconds')
-    # plot_convex_hull(point_list, graham_scan_convex_hull)
-    # runtime, jarvis_march_convex_hull = jarvis_march(point_list)
-    # print(f'Jarvis march runtime for {int(n)} points: {runtime} seconds')
-    gc.collect()
-"""
+    if point_elimination:
+        point_list = interior_point_elimination(point_list)
+    
+    pivot = min(point_list, key=lambda p: (p[0], p[1]))
 
 # -----------------------------------------------------------------------------
 # Tests
@@ -285,7 +279,7 @@ for n in [1e3, 1e4, 1e5, 1e6, 2*1e6, 5*1e6]:
 
 def generate_points_circle(n: int) -> np.ndarray:
     """Generate points in a circle"""
-    radius = n // 2
+    radius = 2 * n
     r = np.sqrt(np.random.rand(n)) * radius
     theta = np.random.rand(n) * 2 * np.pi
     x = r * np.cos(theta)
@@ -303,15 +297,18 @@ def generate_points_circle_border(n: int) -> np.ndarray:
 
 def generate_points_rectangle(n: int) -> np.ndarray:
     """Generate points in a rectangle"""
-    width = n // 2
-    height = n // 8
+    width = n
+    height = n
     x = np.random.rand(n) * width
     y = np.random.rand(n) * height
     return np.column_stack((x, y))
 
 
-def generate_points_rectangle_border(n, width=1.0, height=1.0) -> np.ndarray:
+def generate_points_rectangle_border(n) -> np.ndarray:
     """Generate points in rectangle border"""
+
+    width = n
+    height = n
     sides = np.random.randint(0, 4, n)
     x = np.empty(n)
     y = np.empty(n)
@@ -331,7 +328,7 @@ def generate_points_rectangle_border(n, width=1.0, height=1.0) -> np.ndarray:
     return np.column_stack((x, y))
 
 
-def generate_points_above_parabola(n, a=1, b=0, c=0, x_range=(-5, 5), y_max=None) -> np.ndarray:
+def generate_points_above_parabola(n, a=3, b=2, c=1, x_range=(-5, 5), y_max=None) -> np.ndarray:
     """Generate points above a parabola"""
     x = np.random.rand(n) * (x_range[1] - x_range[0]) + x_range[0]
     parabola_y = a * x**2 + b * x + c
@@ -342,7 +339,7 @@ def generate_points_above_parabola(n, a=1, b=0, c=0, x_range=(-5, 5), y_max=None
     return np.column_stack((x, y))
 
 
-def generate_points_under_parabola(n, a=1, b=0, c=0, x_range=(-5, 5)) -> np.ndarray:
+def generate_points_under_parabola(n, a=3, b=2, c=1, x_range=(-5, 5)) -> np.ndarray:
     """Generate points under a parabola"""
 
     x = np.random.rand(n) * (x_range[1] - x_range[0]) + x_range[0]
@@ -353,7 +350,7 @@ def generate_points_under_parabola(n, a=1, b=0, c=0, x_range=(-5, 5)) -> np.ndar
     return np.column_stack((x, y))
 
 
-def generate_points_parabola_border(n, a=1, b=0, c=0) -> np.ndarray:
+def generate_points_parabola_border(n, a=3, b=2, c=1) -> np.ndarray:
     """Generate points in parabola border"""
     x = np.random.rand(n) * 10 - 5
     y = a * x**2 + b * x + c
@@ -371,7 +368,8 @@ def benchmark(algorithms: list, sizes: list) -> pd.DataFrame:
         'Rectangle': generate_points_rectangle,
         'Rectangle Border': generate_points_rectangle_border,
         'Parabola': generate_points_above_parabola,
-        'Parabola Border': generate_points_parabola_border
+        'Parabola Border': generate_points_parabola_border,
+        'Random case': generate_points
     }
 
     results = []
@@ -379,9 +377,8 @@ def benchmark(algorithms: list, sizes: list) -> pd.DataFrame:
         for name, generator in tqdm(distributions.items(), desc='Distributions', total=len(distributions)):
             points = generator(int(size))
             for algorithm_name, algorithm in algorithms.items():
-                for point_elimination in [True, False]:
-                    runtime = measure_runtime(
-                        algorithm, {'point_list': points, 'point_elimination': point_elimination})
+                for point_elimination in [False, True]:
+                    runtime = measure_runtime(algorithm, points, point_elimination)
                     results.append({
                         'Algorithm': algorithm_name,
                         'Distribution': name,
@@ -389,34 +386,29 @@ def benchmark(algorithms: list, sizes: list) -> pd.DataFrame:
                         'Point Elimination': point_elimination,
                         'Runtime': runtime
                     })
+                    gc.collect()
 
     df = pd.DataFrame(results)
     return df
 
 
-algorithms = {'graham_scan': graham_scan}  # , jarvis_march
-point_number = [1000, 10000, 100000]   # , 1000000, 2*1e6, 5*1e6
+n = int(1000)
+print('input started')
+point_list = generate_points(n, -n, n)
+bbox, _ = get_bbox_triangles(point_list)
+triangle_vectors = get_triangle_vectors(point_list)
+# plot_convex_hull(point_list, [], bbox, triangle_vectors)
+print('input done')
+
+cProfile.run('c_hull = jarvis_march(point_list, False)')
+plot_convex_hull(point_list, c_hull, bbox, triangle_vectors)
+
+
+"""
+algorithms = {'graham_scan': graham_scan, 'jarvis_march': jarvis_march}
+point_number = [1000, 10000, 100000, 1000000, 2000000, 5000000]
 
 df = benchmark(algorithms, point_number)
 df.to_csv('benchmark.csv')
+"""
 
-distributions = df['Distribution'].unique()
-for distribution in distributions:
-    for algorithm in algorithms.keys():
-        plt.figure(figsize=(5, 5))
-        plt.title(f'{algorithm} - {distribution}')
-        for point_elimination in [True, False]:
-            df_filtered = df[(df['Algorithm'] == algorithm) & (
-                df['Distribution'] == distribution) & (df['Point Elimination'] == point_elimination)]
-            plt.plot(df_filtered['Points'], df_filtered['Runtime'], label='Point Elimination' if point_elimination else 'No Point Elimination',
-                     marker='o', linestyle='--', markersize=5)
-
-        plt.xscale('log')
-        plt.yscale('log')
-        plt.xticks(point_number, rotation=45)
-        plt.xlabel('Number of Points')
-        plt.ylabel('Runtime (seconds)')
-        plt.legend()
-        plt.show()
-
-display(df)
