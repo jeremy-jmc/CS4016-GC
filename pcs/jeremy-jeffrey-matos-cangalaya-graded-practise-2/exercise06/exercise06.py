@@ -19,6 +19,10 @@ from IPython.display import display
 from functools import cmp_to_key
 import cProfile
 import time
+import os
+import cProfile
+
+os.makedirs('img', exist_ok=True)
 
 random.seed(123)
 
@@ -55,9 +59,10 @@ def measure_runtime(algorithm, points, point_elimination) -> float:
 def plot_convex_hull(point_list: list, c_hull: list, bbox: list = [], triangle_vectors: list = []) -> None:
     """Visualize the convex hull of a set of points"""
 
+    n = len(point_list)
     # plot points
-    plt.figure(figsize=(10, 10))
-    for p in tqdm(point_list, desc='Plotting points', total=len(point_list)):
+    fig = plt.figure(figsize=(10, 10))
+    for p in tqdm(point_list, desc='Plotting points', total=n):
         plt.plot(p[0], p[1], 'o', color='black', markersize=5, alpha=0.5)
 
     # plot convex hull
@@ -89,8 +94,9 @@ def plot_convex_hull(point_list: list, c_hull: list, bbox: list = [], triangle_v
 
     # plt.xticks([])
     # plt.yticks([])
+    if n < 10000:
+        fig.savefig(f'img/convex_hull_{n}.png')
     plt.show()
-    # plt.savefig(f'convex_hull_{len(point_list)}.png')
 
 
 # -----------------------------------------------------------------------------
@@ -193,13 +199,19 @@ def orientation_vectorized(a: np.ndarray, b: np.ndarray, points: np.ndarray) -> 
 
 
 def points_outside_convex_quad(points: np.ndarray, convex_quad: list) -> np.ndarray:
+    # print(convex_quad)
     outside = np.full(points.shape[0], False, dtype=bool)
     for vector in convex_quad:
+        # print('\t', vector)
         axis, direction = vector
+        if np.array_equal(axis, direction):
+            continue
         orientation_result = orientation_vectorized(direction, axis, points)
         # it is sufficient that a point is collinear or to the right of a vector 
         # for it not to belong to the quadrilateral.
+        # print('\t', orientation_result)
         outside |= (orientation_result != LEFT)
+        # print(outside)
     
     return outside
 
@@ -238,8 +250,8 @@ def graham_scan(point_list: list, point_elimination: bool = False) -> list:
         slopes = np.zeros(delta_y.shape)
         mask_zero = delta_x == 0
         slopes[mask_zero] = np.inf
-        slopes[~mask_zero] = np.divide(
-            delta_y[~mask_zero], delta_x[~mask_zero])
+        slopes[~mask_zero] = np.divide(delta_y[~mask_zero], 
+                                       delta_x[~mask_zero])
 
         return slopes  # np.divide(delta_y, delta_x)
 
@@ -272,7 +284,7 @@ def jarvis_march(point_list: list, point_elimination: bool = False) -> list:
     
     n = len(point_list)
     pivot_index = min(range(n), key=lambda i: (point_list[i][0], point_list[i][1]))
-    hull = []
+    hull = deque()
 
     while True:
         hull.append(point_list[pivot_index])
@@ -413,19 +425,25 @@ def benchmark(algorithms: list, sizes: list) -> pd.DataFrame:
     df = pd.DataFrame(results)
     return df
 
-"""
-n = int(1e5)
+
+# -----------------------------------------------------------------------------
+# Profiling
+# -----------------------------------------------------------------------------
+
+n = int(1e3)
 print('input started')
-point_list = generate_points(n, -n*2, n*2)
+point_list = generate_points_above_parabola(n, n*4, n*2)
 bbox, _ = get_bbox_triangles(point_list)
 triangle_vectors = get_triangle_vectors(point_list)
 print('input done')
 
 # c_hull = jarvis_march(point_list, False)
-cProfile.run('c_hull = jarvis_march(point_list, True)')
-# plot_convex_hull(point_list, c_hull, bbox, triangle_vectors)
-"""
+cProfile.run('c_hull = jarvis_march(point_list, True)', sort='tottime')
 
+plot_convex_hull(point_list, c_hull, bbox, triangle_vectors)
+
+
+"""
 algorithms = {'graham_scan': graham_scan, 'jarvis_march': jarvis_march}
 point_number = [1000, 10000, 100000, 1000000, 2000000, 5000000]
 
@@ -433,3 +451,4 @@ df = benchmark(algorithms, point_number)
 df.to_csv('./benchmark.csv')
 
 print(df)
+"""
