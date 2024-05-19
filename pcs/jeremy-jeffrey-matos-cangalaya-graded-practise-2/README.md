@@ -1,26 +1,23 @@
 
-- **TODO:** 2, 3, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20
-- **IN PROGRESS:** 6
-- **DONE:** 1
-- **PERFECTED:** 4
 
 ### non-optional
 | nro_problema | puntaje | titulo | status |
 |--------------|---------|----------|--------|
-| 1            | 5pts    | x        | done       |
-| 2            | 5pts    | x        | done       |
-| 3            | 5pts    |          | blank   |
-| 4            | 5pts    | x        | done        |
-| 5            | 5pts    |          | blank       |
-| 6            | 20pts   | x        | done        |
-| 7            | 10pts   | x        | blank       |
-| 8            | 10pts   |          | blank       |
-| 9            | 10pts   | x        | blank       |
-| 10           | 5pts    | x        | blank       |
-| 11           | 5pts    | x        | done       |
-| 12           | 5pts    |          | blank       |
-| 13           | 5pts    | x        | blank       |
-| 14           | 5pts    |          | blank       |
+| 1            | 5pts    | segment intersection       | done       |
+| 2            | 5pts    | check if polygon is convex        | done       |
+| 3            | 5pts    | distance point to line            | done   |
+| 4            | 5pts    | check if point belongs to triangle        | done        |
+| 5            | 5pts    | check if point belongs to non-crossed polygonal region         | blank       |
+| 6            | 20pts   | convex hull        | done        |
+| 7            | 10pts   | line segments intersection in NlgN        | blank       |
+| 8            | 10pts   | closest pair of points         | blank       |
+| 9            | 10pts   | explain Voronoi and Delaunay        | blank       |
+| 10           | 5pts    | number of triangulations of a n-regular polygon        | done       |
+| 11           | 5pts    | area of a convex polygon        | done       |
+| 12           | 5pts    | area of the intersection of two convex polygons         | blank       |
+| 13           | 5pts    | Douglas-Peucker        | done       |
+| 14           | 5pts    | Visvalingam-Whyatt         | blank       |
+
 
 ### optional
 | nro_problema | puntaje | eleccion | status |
