@@ -7,7 +7,6 @@ https://medium.com/@harshitsikchi/convex-hulls-explained-baab662c4e94
 https://www.geeksforgeeks.org/convex-hull-using-jarvis-algorithm-or-wrapping/
 """
 
-from tabulate import tabulate
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -19,6 +18,7 @@ from collections import deque
 from IPython.display import display
 from functools import cmp_to_key
 import cProfile
+import time
 
 random.seed(123)
 
@@ -56,7 +56,7 @@ def plot_convex_hull(point_list: list, c_hull: list, bbox: list = [], triangle_v
     """Visualize the convex hull of a set of points"""
 
     # plot points
-    plt.figure(figsize=(5, 5))
+    plt.figure(figsize=(10, 10))
     for p in tqdm(point_list, desc='Plotting points', total=len(point_list)):
         plt.plot(p[0], p[1], 'o', color='black', markersize=5, alpha=0.5)
 
@@ -90,7 +90,7 @@ def plot_convex_hull(point_list: list, c_hull: list, bbox: list = [], triangle_v
     # plt.xticks([])
     # plt.yticks([])
     plt.show()
-    plt.savefig(f'convex_hull_{len(point_list)}.png')
+    # plt.savefig(f'convex_hull_{len(point_list)}.png')
 
 
 # -----------------------------------------------------------------------------
@@ -270,7 +270,27 @@ def jarvis_march(point_list: list, point_elimination: bool = False) -> list:
     if point_elimination:
         point_list = interior_point_elimination(point_list)
     
-    pivot = min(point_list, key=lambda p: (p[0], p[1]))
+    n = len(point_list)
+    pivot_index = min(range(n), key=lambda i: (point_list[i][0], point_list[i][1]))
+    hull = []
+
+    while True:
+        hull.append(point_list[pivot_index])
+        q = (pivot_index - 1) % n
+        # print('\t', point_list[pivot_index])
+        for other_idx in range(n):
+            if orientation(point_list[other_idx], point_list[q], point_list[pivot_index]) == LEFT:
+                # print(point_list[pivot_index], point_list[q], point_list[other_idx])
+                q = other_idx
+        
+        pivot_index = q
+        if np.array_equal(point_list[pivot_index], hull[0]):
+            break
+        # plot_convex_hull(point_list, hull)
+        # time.sleep(1)
+    return hull
+
+
 
 # -----------------------------------------------------------------------------
 # Tests
@@ -386,29 +406,30 @@ def benchmark(algorithms: list, sizes: list) -> pd.DataFrame:
                         'Point Elimination': point_elimination,
                         'Runtime': runtime
                     })
-                    gc.collect()
+                gc.collect()
+            gc.collect()
+        gc.collect()
 
     df = pd.DataFrame(results)
     return df
 
-
-n = int(1000)
+"""
+n = int(1e5)
 print('input started')
-point_list = generate_points(n, -n, n)
+point_list = generate_points(n, -n*2, n*2)
 bbox, _ = get_bbox_triangles(point_list)
 triangle_vectors = get_triangle_vectors(point_list)
-# plot_convex_hull(point_list, [], bbox, triangle_vectors)
 print('input done')
 
-cProfile.run('c_hull = jarvis_march(point_list, False)')
-plot_convex_hull(point_list, c_hull, bbox, triangle_vectors)
-
-
+# c_hull = jarvis_march(point_list, False)
+cProfile.run('c_hull = jarvis_march(point_list, True)')
+# plot_convex_hull(point_list, c_hull, bbox, triangle_vectors)
 """
+
 algorithms = {'graham_scan': graham_scan, 'jarvis_march': jarvis_march}
 point_number = [1000, 10000, 100000, 1000000, 2000000, 5000000]
 
 df = benchmark(algorithms, point_number)
-df.to_csv('benchmark.csv')
-"""
+df.to_csv('./benchmark.csv')
 
+print(df)

@@ -12,7 +12,7 @@
 | 3            | 5pts    |          |        |
 | 4            | 5pts    | x        | done        |
 | 5            | 5pts    |          |        |
-| 6            | 20pts   | x        | in progress        |
+| 6            | 20pts   | x        | done        |
 | 7            | 10pts   | x        | blank       |
 | 8            | 10pts   |          |        |
 | 9            | 10pts   | x        | blank       |
