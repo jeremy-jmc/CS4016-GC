@@ -7,7 +7,7 @@
 | 2            | 5pts    | check if polygon is convex        | done       |
 | 3            | 5pts    | distance point to line            | done   |
 | 4            | 5pts    | check if point belongs to triangle        | done        |
-| 5            | 5pts    | check if point belongs to non-crossed polygonal region         | blank       |
+| 5            | 5pts    | check if point belongs to non-crossed polygonal region         | done       |
 | 6            | 20pts   | convex hull        | done        |
 | 7            | 10pts   | line segments intersection in NlgN        | blank       |
 | 8            | 10pts   | closest pair of points         | blank       |
@@ -16,7 +16,7 @@
 | 11           | 5pts    | area of a convex polygon        | done       |
 | 12           | 5pts    | area of the intersection of two convex polygons         | blank       |
 | 13           | 5pts    | Douglas-Peucker        | done       |
-| 14           | 5pts    | Visvalingam-Whyatt         | blank       |
+| 14           | 5pts    | Visvalingam-Whyatt         | done       |
 
 
 ### optional
