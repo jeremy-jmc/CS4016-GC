@@ -44,9 +44,9 @@ def cross_product_2d(a: np.ndarray, b: np.ndarray) -> float:
 def area_convex_polygon(polygon: np.ndarray) -> float:
     """Return the area of a convex polygon"""
     n = len(polygon)
-    parallelogram_areas = [cross_product_2d(polygon[i], polygon[(i + 1) % n]) 
-                           for i in range(n)]
-    area = sum(parallelogram_areas) / 2
+    parallelogram_areas = [cross_product_2d(polygon[i] - polygon[0], polygon[(i + 1) % n] - polygon[0]) 
+                           for i in range(1, n)]
+    area = abs(sum(parallelogram_areas)) / 2
     return area
 
 # -----------------------------------------------------------------------------

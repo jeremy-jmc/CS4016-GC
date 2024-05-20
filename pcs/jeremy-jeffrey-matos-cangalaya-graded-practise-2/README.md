@@ -14,7 +14,7 @@
 | 9            | 10pts   | explain Voronoi and Delaunay        | blank       |
 | 10           | 5pts    | number of triangulations of a n-regular polygon        | done       |
 | 11           | 5pts    | area of a convex polygon        | done       |
-| 12           | 5pts    | area of the intersection of two convex polygons         | blank       |
+| 12           | 5pts    | area of the intersection of two convex polygons         | done       |
 | 13           | 5pts    | Douglas-Peucker        | done       |
 | 14           | 5pts    | Visvalingam-Whyatt         | done       |
 

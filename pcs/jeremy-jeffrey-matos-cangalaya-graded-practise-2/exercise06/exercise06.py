@@ -430,17 +430,17 @@ def benchmark(algorithms: list, sizes: list) -> pd.DataFrame:
 # Profiling
 # -----------------------------------------------------------------------------
 
-n = int(1e3)
+n = int(5e6)
 print('input started')
-point_list = generate_points_above_parabola(n, n*4, n*2)
-bbox, _ = get_bbox_triangles(point_list)
-triangle_vectors = get_triangle_vectors(point_list)
+point_list = generate_points(n) # generate_points_above_parabola(n, n*4, n*2)
+# bbox, _ = get_bbox_triangles(point_list)
+# triangle_vectors = get_triangle_vectors(point_list)
 print('input done')
 
 # c_hull = jarvis_march(point_list, False)
-cProfile.run('c_hull = jarvis_march(point_list, True)', sort='tottime')
+cProfile.run('c_hull = jarvis_march(point_list, False)', sort='tottime')
 
-plot_convex_hull(point_list, c_hull, bbox, triangle_vectors)
+# plot_convex_hull(point_list, c_hull, bbox, triangle_vectors)
 
 
 """

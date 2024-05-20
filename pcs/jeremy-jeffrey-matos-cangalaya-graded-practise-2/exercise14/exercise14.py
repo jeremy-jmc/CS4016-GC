@@ -10,6 +10,7 @@ https://github.com/Permafacture/Py-Visvalingam-Whyatt/blob/master/polysimplify.p
 https://bost.ocks.org/mike/simplify/
 https://www.jasondavies.com/simplify/
 https://stackoverflow.com/questions/10558299/visvalingam-whyatt-polyline-simplification-algorithm-clarification
+https://archive.is/Tzq2
 """
 
 import heapq

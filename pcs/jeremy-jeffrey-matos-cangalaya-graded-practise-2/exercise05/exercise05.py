@@ -7,6 +7,7 @@ IDEA:
     If the sum is 2π, the point is inside the polygon.
     If the sum is 0, the point is outside the polygon.
 
+https://cses.fi/problemset/task/2192
 https://www.eecs.umich.edu/courses/eecs380/HANDOUTS/PROJ2/InsidePoly.html
 https://www.reddit.com/r/gamemaker/comments/14nsit6/check_if_a_pointclick_is_inside_a_polygon/
 https://codeforces.com/blog/entry/48868
