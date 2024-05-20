@@ -64,7 +64,7 @@ def area(point: Point) -> float:
         return float('inf')
     ab = point.next.data - point.data
     cb = point.prev.data - point.data
-    return np.linalg.norm(np.cross(ab, cb)) / 2
+    return (np.linalg.norm(np.cross(ab, cb)) / 2)
 
 
 def remove(point: list):
@@ -85,14 +85,16 @@ def update(point: Point, heap: list):
     heapq.heappush(heap, point)
 
 
-def visvalingam_whyatt(points: list):
+def visvalingam_whyatt(points: list, threshold: float):
     heap = []
     for point in points:
         heapq.heappush(heap, point)
 
     while len(heap) > 2:
-        plot_vwhyatt(points)
+        # plot_vwhyatt(points)
         point = heapq.heappop(heap)
+        if point.area > threshold:
+            break
         # print(heap)
         remove(point)
 
@@ -100,8 +102,9 @@ def visvalingam_whyatt(points: list):
             update(point.prev, heap)
         if point.next:
             update(point.next, heap)
-    plot_vwhyatt(points)
+    # plot_vwhyatt(points)
 
+    return points
 
 def preprocessing(polygon):
     points = [Point(np.append(xy, 0)) for xy in polygon]
@@ -123,8 +126,9 @@ def preprocessing(polygon):
 polyline = np.array([[1, 1], [3, -2], [5, -2], [7, 1],
                     [9, 3], [11, 2.5], [13, -1], [15, 1.5]])
 points = preprocessing(polyline)
-
-visvalingam_whyatt(points)
+threshold = 2.5
+result_points = visvalingam_whyatt(points, threshold)
+plot_vwhyatt(result_points)
 
 polygon = np.array([
     [0.0, 0.0],
@@ -140,4 +144,6 @@ polygon = np.array([
     [0.0, 0.0]  # Cerrando el polígono
 ])
 points = preprocessing(polygon)
-visvalingam_whyatt(points)
+threshold = 0.5
+result_points = visvalingam_whyatt(points, threshold)
+plot_vwhyatt(result_points)

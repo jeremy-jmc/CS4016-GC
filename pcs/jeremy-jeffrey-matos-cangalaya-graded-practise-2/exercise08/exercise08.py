@@ -40,7 +40,7 @@ def closest_pair_points_dc(px: list, py: list, n: int) -> tuple:
             ri += 1
 
     # conquer
-    d_l, pair_l = closest_pair_points_dc(px, py_l, mid)
+    d_l, pair_l = closest_pair_points_dc(px[:mid], py_l, mid)
     d_r, pair_r = closest_pair_points_dc(px[mid:], py_r, n - mid)
 
     # combine
