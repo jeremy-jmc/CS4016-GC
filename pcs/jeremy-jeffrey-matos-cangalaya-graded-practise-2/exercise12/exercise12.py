@@ -3,6 +3,7 @@ Write a function that computes the area of the intersection of two convex polygo
 
 https://stackoverflow.com/questions/13101288/intersection-of-two-convex-polygons
 https://www.science.smith.edu/~jorourke/books/cgc-toc.html
+https://www.youtube.com/watch?v=bvlIYX9cgls
 """
 
 import matplotlib.pyplot as plt
