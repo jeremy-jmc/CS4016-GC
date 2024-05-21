@@ -89,7 +89,7 @@ def check_line_intersection(s1: Segment, s2: Segment) -> bool:
     A, B = s2.p1.to_numpy(), s2.p2.to_numpy()
     C, D = s1.p1.to_numpy(), s1.p2.to_numpy()
 
-    print(f'{A=} {B=} {C=} {D=}')
+    # print(f'{A=} {B=} {C=} {D=}')
 
     # * (-): left, 0: parallel/collinear, (+): right
     ba_ca = np.cross(B - A, C - A)[2]
@@ -97,7 +97,7 @@ def check_line_intersection(s1: Segment, s2: Segment) -> bool:
     dc_ac = np.cross(D - C, A - C)[2]
     dc_bc = np.cross(D - C, B - C)[2]
 
-    print(f'{ba_ca=} {ba_da=} {dc_ac=} {dc_bc=}')
+    # print(f'{ba_ca=} {ba_da=} {dc_ac=} {dc_bc=}')
 
     if np.sign(ba_ca) != np.sign(ba_da) and np.sign(dc_ac) != np.sign(dc_bc):
         return True

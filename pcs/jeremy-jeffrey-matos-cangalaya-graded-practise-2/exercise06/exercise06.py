@@ -76,7 +76,7 @@ def plot_convex_hull(point_list: list, c_hull: list, bbox: list = [], triangle_v
     if bbox:
         x1, y1, x2, y2 = bbox
         plt.plot([x1, x2, x2, x1, x1], [y1, y1, y2, y2, y1],
-                 color='red', linestyle='-', linewidth=1, alpha=0.5)
+                 color='red', linestyle='-', linewidth=2.5)
 
     # plot triangle vectors for Akl-Toussaint heuristic and interior point elimination result
     if triangle_vectors:
@@ -90,7 +90,7 @@ def plot_convex_hull(point_list: list, c_hull: list, bbox: list = [], triangle_v
         point_elimination = interior_point_elimination(point_list)
         for p in point_elimination:
             plt.plot(p[0], p[1], 'o', color='orange',
-                     markersize=5, label='Interior point')
+                     markersize=5, label='Exterior point')
 
     # plt.xticks([])
     # plt.yticks([])
@@ -210,7 +210,7 @@ def points_outside_convex_quad(points: np.ndarray, convex_quad: list) -> np.ndar
         # it is sufficient that a point is collinear or to the right of a vector 
         # for it not to belong to the quadrilateral.
         # print('\t', orientation_result)
-        outside |= (orientation_result != LEFT)
+        outside |= ((orientation_result == RIGHT) | (orientation_result == COLLINEAR))
         # print(outside)
     
     return outside
@@ -410,13 +410,13 @@ def benchmark(algorithms: list, sizes: list) -> pd.DataFrame:
             points = generator(int(size))
             for algorithm_name, algorithm in algorithms.items():
                 for point_elimination in [False, True]:
-                    runtime = measure_runtime(algorithm, points, point_elimination)
+                    # runtime = measure_runtime(algorithm, points, point_elimination)
                     results.append({
                         'Algorithm': algorithm_name,
                         'Distribution': name,
                         'Points': size,
                         'Point Elimination': point_elimination,
-                        'Runtime': runtime
+                        'Runtime': np.nan
                     })
                 gc.collect()
             gc.collect()
@@ -430,20 +430,33 @@ def benchmark(algorithms: list, sizes: list) -> pd.DataFrame:
 # Profiling
 # -----------------------------------------------------------------------------
 
-n = int(5e6)
-print('input started')
-point_list = generate_points(n) # generate_points_above_parabola(n, n*4, n*2)
-# bbox, _ = get_bbox_triangles(point_list)
-# triangle_vectors = get_triangle_vectors(point_list)
-print('input done')
-
-# c_hull = jarvis_march(point_list, False)
-cProfile.run('c_hull = jarvis_march(point_list, False)', sort='tottime')
-
-# plot_convex_hull(point_list, c_hull, bbox, triangle_vectors)
-
+"""
+generate_points_circle
+generate_points_circle_border
+generate_points_rectangle
+generate_points_rectangle_border
+generate_points_above_parabola
+generate_points_parabola_border
+generate_points
+"""
 
 """
+n = int(1e4)
+point_list = generate_points_parabola_border(n) # generate_points_above_parabola(n, n*4, n*2)
+bbox, _ = get_bbox_triangles(point_list)
+triangle_vectors = get_triangle_vectors(point_list)
+print('input done')
+
+# cProfile.run('c_hull_gs_no = graham_scan(point_list, False)', sort='tottime')
+# cProfile.run('c_hull_gs_yes = graham_scan(point_list, True)', sort='tottime')
+cProfile.run('c_hull_jm_no = jarvis_march(point_list, False)', sort='tottime')
+cProfile.run('c_hull_jm_yes = jarvis_march(point_list, True)', sort='tottime')
+
+# plot_convex_hull(point_list, [], bbox, triangle_vectors)
+# print(len(c_hull_gs_no), len(c_hull_gs_yes))
+# print(len(c_hull_jm_no), len(c_hull_jm_yes))
+"""
+
 algorithms = {'graham_scan': graham_scan, 'jarvis_march': jarvis_march}
 point_number = [1000, 10000, 100000, 1000000, 2000000, 5000000]
 
@@ -451,4 +464,3 @@ df = benchmark(algorithms, point_number)
 df.to_csv('./benchmark.csv')
 
 print(df)
-"""
