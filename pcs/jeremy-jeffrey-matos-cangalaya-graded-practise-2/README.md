@@ -9,9 +9,9 @@
 | 4            | 5pts    | check if point belongs to triangle        | done        |
 | 5            | 5pts    | check if point belongs to non-crossed polygonal region         | done       |
 | 6            | 20pts   | convex hull        | done        |
-| 7            | 10pts   | line segments intersection in NlgN        | blank       |
+| 7            | 10pts   | line segments intersection in NlgN        | done       |
 | 8            | 10pts   | closest pair of points         | done       |
-| 9            | 10pts   | explain Voronoi and Delaunay        | blank       |
+| 9            | 10pts   | explain Voronoi and Delaunay        | done       |
 | 10           | 5pts    | number of triangulations of a n-regular polygon        | done       |
 | 11           | 5pts    | area of a convex polygon        | done       |
 | 12           | 5pts    | area of the intersection of two convex polygons         | done       |

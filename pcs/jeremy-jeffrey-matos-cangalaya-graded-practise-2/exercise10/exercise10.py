@@ -4,7 +4,16 @@ Explain your solution.
 
 https://math.stackexchange.com/questions/1986709/triangulations-of-n-gon
 https://math.stackexchange.com/questions/4324425/recursivley-count-triangulations-of-a-convex-polygon
-TODO: explain de idea
+
+
+El approach toma como base un lado del poligono y divide el poligon en dos poligonos mas pequeños,
+a partir de todos los posibles triangulos que contenga el lado como base. Estos nuevos poligonos son de tamaño k y n-k+1,
+donde k es el numero de lados que se dejan a la izquierda del lado base y n-k+1 es el numero de lados que se dejan a la derecha del lado base.
+
+Por lo tanto el numero de triangulaciones de un poligono de n lados es la suma de todas las posibles triangulaciones de los poligonos de tamaño k y n-k+1
+Por principio de multiplicacion se forma la siguiente recurrencia
+    T_n = sum(T_k * T_n-k+1) para k = 2 hasta n-1
+El cual se puede resolver con programacion dinamica de manera bottom-up
 """
 
 # -----------------------------------------------------------------------------
