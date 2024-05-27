@@ -29,7 +29,15 @@ $$G_{\sigma}(x, y) = \frac{1}{2\sigma^2 \pi} e^{-(x^2 + y^2)/(2\sigma^2)}.$$
 
 `Effect`: The Gaussian filter smooths the image, reducing noise and detail. It effectively averages the pixel values in the neighborhood defined by the Gaussian kernel, where the weights decrease with distance from the center
 
-3. Define the concept of a convolution kernel. How is it used in image processing to apply filters? Illustrate with an example kernel and explain its effect on an image. - Libro p. 166 - `Definition:` A convolution kernel (or filter) is a small matrix used to apply effects such as blurring, sharpening, and edge detection to an image through the convolution operation. - `Usage in Image Processing:` Convolution kernels are applied to images by sliding the kernel over the image, computing the sum of the product of the kernel coefficients and the corresponding image pixels, and assigning this sum to the central pixel of the kernel position. - `Example Kernel:` Outline Kernel - An outline kernel (also called an "edge" kernel) is used to highlight large differences in pixel values. A pixel next to neighbor pixels with close to the same intensity will appear black in the new image while one next to neighbor pixels that differ strongly will appear white. - `Effect:` The outline kernel enhances the edges in an image, making them more prominent and easier to detect. It highlights the areas of high contrast, such as the boundaries between objects or regions with significant intensity changes. - https://setosa.io/ev/image-kernels/
+3. Define the concept of a convolution kernel. How is it used in image processing to apply filters? Illustrate with an example kernel and explain its effect on an image.
+
+- Libro p. 166 
+- `Definition:` A convolution kernel (or filter) is a small matrix used to apply effects such as blurring, sharpening, and edge detection to an image through the convolution operation. 
+- `Usage in Image Processing:` Convolution kernels are applied to images by sliding the kernel over the image, computing the sum of the product of the kernel coefficients and the corresponding image pixels, and assigning this sum to the central pixel of the kernel position. 
+- `Example Kernel:` Outline Kernel 
+- An outline kernel (also called an "edge" kernel) is used to highlight large differences in pixel values. A pixel next to neighbor pixels with close to the same intensity will appear black in the new image while one next to neighbor pixels that differ strongly will appear white. 
+- `Effect:` The outline kernel enhances the edges in an image, making them more prominent and easier to detect. It highlights the areas of high contrast, such as the boundaries between objects or regions with significant intensity changes. 
+- https://setosa.io/ev/image-kernels/
    $$
    \begin{bmatrix}
    -1 & -1 & -1 \\
@@ -88,6 +96,7 @@ $$
 ## Color theory
 
 1. What is an additive color model?
+
 - El additive color model define que un color está formado por dos o más colores sumando sus distribuciones espectrales. 
 - Es sabido que un prisma descompone la luz blanca en más colores. Por lo tanto, Isaac Newton usando dos prismas demostró usando el segundo prisma que si pasamos los espectros de color obtenidos por el primer prisma se obtiene de nuevo luz blanca. Demostrando que los colores están compuestos unos de otros y no creados por el prisma, pensado anteriormente.
 
@@ -99,6 +108,7 @@ $$
 <div align="center">
     <img src="./cubo_rgb.png">
 </div>
+
 - Cada color representado por computador se puede como un triplete de valores (r,g,b) donde cada uno de estos varía según su intensidad, es así como este modelo es utilizado por dispositivos electrónicos para representar colores. 
 
 3. Describe the HSV color model. How does it differ from the RGB model? In which situations it might it be preferrable?
@@ -119,45 +129,35 @@ $$
 
 5. Given the RGB values (34, 139, 34), convert this color to its equivalent in the HSV color space. Show all steps of your conversion.
 
-To convert the RGB color (34, 139, 34) to its equivalent in the HSV color space, we can follow these steps:
+- **Step 1:** Normalize the RGB values to the range .
+  - R = 34 / 255 = 0.133
+  - G = 139 / 255 = 0.545
+  - B = 34 / 255 = 0.133
+- **Step 2:** Determine the maximum (Max) and minimum (Min) values among the normalized RGB values.
+  - Max = max(0.133, 0.545, 0.133) = 0.545
+  - Min = min(0.133, 0.545, 0.133) = 0.133
+- **Step 3:** Calculate the Hue (H) value.
+  - If Max = Min, then H = 0 (undefined). Otherwise, 
+  - If Max = R, then H = 60 * ((G - B) / (Max - Min)) % 360.
+  - If Max = G, then H = 60 * ((B - R) / (Max - Min)) + 120.
+  - If Max = B, then H = 60 * ((R - G) / (Max - Min)) + 240.
 
-*Step 1: Normalize the RGB values to the range .*
-R = 34 / 255 = 0.133
-G = 139 / 255 = 0.545
-B = 34 / 255 = 0.133
-
-*Step 2: Determine the maximum (Max) and minimum (Min) values among the normalized RGB values.*
-Max = max(0.133, 0.545, 0.133) = 0.545
-Min = min(0.133, 0.545, 0.133) = 0.133
-
-*Step 3: Calculate the Hue (H) value.*
-If Max = Min, then H = 0 (undefined).
-Otherwise, 
-If Max = R, then H = 60 * ((G - B) / (Max - Min)) % 360.
-If Max = G, then H = 60 * ((B - R) / (Max - Min)) + 120.
-If Max = B, then H = 60 * ((R - G) / (Max - Min)) + 240.
-
-In this case, Max = G, so:
-H = 60 * ((B - R) / (Max - Min)) + 120
-H = 60 * ((0.133 - 0.133) / (0.545 - 0.133)) + 120
-H = 120 degrees
-
-*Step 4: Calculate the Saturation (S) value.*
-If Max = 0, then S = 0 (undefined).
-Otherwise, S = (Max - Min) / Max.
-
-S = (0.545 - 0.133) / 0.545
-S = 0.756 or 75.6%
-
-*Step 5: Calculate the Value (V) value.*
-V = Max.
-
-V = 0.545 or 54.5%
-
-Therefore, the equivalent HSV color for the given RGB values (34, 139, 34) is:
-- Hue (H): 120 degrees
-- Saturation (S): 75.6%
-- Value (V): 54.5%
+  In this case, Max = G, so:
+  - H = 60 * ((B - R) / (Max - Min)) + 120
+  - H = 60 * ((0.133 - 0.133) / (0.545 - 0.133)) + 120
+  - H = 120 degrees
+- **Step 4:** Calculate the Saturation (S) value.
+  - If Max = 0, then S = 0 (undefined).
+  - Otherwise, S = (Max - Min) / Max.
+    - S = (0.545 - 0.133) / 0.545
+    - S = 0.756 or 75.6%
+- **Step 5:** Calculate the Value (V) value.
+  - V = Max.
+  - V = 0.545 or 54.5%
+  - Therefore, the equivalent HSV color for the given RGB values (34, 139, 34) is:
+    - Hue (H): 120 degrees
+    - Saturation (S): 75.6%
+    - Value (V): 54.5%
 
 
 
