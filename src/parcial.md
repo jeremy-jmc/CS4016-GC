@@ -250,8 +250,13 @@ $$
     <img src='./p6_2.jpeg' width="60%">
 </div>
 
-7. Given 3 points $a, b, p \in R^3$, propose a mathod to determine if the point $p$ is in the
-   segment $\overline{ab}$. - `point in segment` - Calculate the component $z$ of the cross product between the vectors $\overrightarrow{ap}$ and $\overrightarrow{ab}$. - If the component $z$ is zero, the point $p$ is collinear with the segment $\overline{ab}$. - If point $p$ is collinear with the segment $\overline{ab}$, check if the coordinates of $p$ are between the coordinates of $a$ and $b$. - If true, then the point $p$ is in the segment $\overline{ab}$. - If false, then the point $p$ is not in the segment $\overline{ab}$.
+7. Given 3 points $a, b, p \in R^3$, propose a mathod to determine if the point $p$ is in the segment $\overline{ab}$. 
+- `point in segment` 
+  - Calculate the component $z$ of the cross product between the vectors $\overrightarrow{ap}$ and $\overrightarrow{ab}$. 
+    - If the component $z$ is zero, the point $p$ is collinear with the segment $\overline{ab}$. 
+    - If point $p$ is collinear with the segment $\overline{ab}$, check if the coordinates of $p$ are between the coordinates of $a$ and $b$.
+      - If true, then the point $p$ is in the segment $\overline{ab}$. 
+      - If false, then the point $p$ is not in the segment $\overline{ab}$.
 8. Consider a parametrization of the sides of a convex quadrilateral ABCD as follows:
 
 $$
