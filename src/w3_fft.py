@@ -71,7 +71,7 @@ plt.show()
 # * convert image back to spatial domain
 img_back = inverse_fourier(fshift)
 
-cut_off_low = 500
+cut_off_low = 5
 cut_off_high = 5
 low_filter = filter(fshift, cut_off_low, True)
 high_filter = filter(fshift, cut_off_high, False)
