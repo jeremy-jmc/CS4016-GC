@@ -10,4 +10,6 @@ https://inst.eecs.berkeley.edu/~cs194-26/fa15/Lectures/blending.pdf
 https://arxiv.org/pdf/1910.11495
 
 cg-class-7.pdf
+
+https://www.damtp.cam.ac.uk/user/reh10/lectures/nst-mmii-chapter2.pdf
 """

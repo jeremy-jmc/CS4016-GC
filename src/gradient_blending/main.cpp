@@ -91,9 +91,7 @@ bool isMaskPixel(unsigned int x, unsigned int y) {
 }
 
 // compute image gradient.
-float vpq(
-	float fpstar, float fqstar,
-	float gp, float gq) {
+float vpq(float fpstar, float fqstar, float gp, float gq) {
 	float fdiff = fpstar - fqstar;
 	float gdiff = gp - gq;
 
