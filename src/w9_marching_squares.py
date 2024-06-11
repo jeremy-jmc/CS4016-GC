@@ -99,36 +99,72 @@ def marching_squares(f: Callable, bbox: tuple, depth: int = 0, precision: float 
     marching_squares(f, (x_mid, y_min, x_max, y_mid), depth + 1)
 
 
-# -----------------------------------------------------------------------------
-# * Main
-# -----------------------------------------------------------------------------
-RADIUS = 2
+def draw_curve(f: Callable, output_file: str = './image.eps', 
+              min_x: int = -1, min_y: int = -1, max_x: int = 1, max_y: int = 1, 
+              precision: float =  0.05):
+    global MARCHING_SQUARES_RESULT
+    MARCHING_SQUARES_RESULT = []
 
-def f(x: float, y: float, radius: int = RADIUS) -> float:
+    BBOX = (min_x, min_y, max_x, max_y)
+    marching_squares(f, BBOX, precision=precision)
+
+    # Plot and save
+    x = np.linspace(min_x, max_x, 100)
+    y = np.linspace(min_y, max_y, 100)
+    X, Y = np.meshgrid(x, y)
+    Z = f(X, Y)
+
+    fig = plt.figure(figsize=(10, 10))
+    plt.contour(X, Y, Z, levels=[0], colors='black', linestyles='dashed')
+    for line in MARCHING_SQUARES_RESULT:
+        first, second = zip(*line)
+        plt.plot(first, second, 'r')
+        # plt.scatter(first, second, color='r', s=10)
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.xlim(min_x - 0.1, max_x + 0.1)
+    plt.ylim(min_y - 0.1, max_y + 0.1)  # Fixed typo: min_y instead of min_y
+    fig.savefig(output_file, format='eps')
+    plt.close(fig)  # Close the figure to avoid displaying an empty canvas
+
+# -----------------------------------------------------------------------------
+# * Main    
+# -----------------------------------------------------------------------------
+RADIUS = 3
+
+def f_circle(x: float, y: float, radius: int = RADIUS) -> float:
     return x**2 + y**2 - radius**2
+
+def f_example(x, y):
+    return 0.004 + 0.110 * x - 0.177 * y - 0.174 * x**2 + 0.224 * x * y - 0.303 * y**2 - 0.168 * x**3 + 0.327 * x**2 * y - 0.087 * x * y**2 - 0.013 * y**3 + 0.235 * x**4 - 0.667 * x**3 * y + 0.745 * x**2 * y**2 - 0.029 * x * y**3 + 0.072 * y**4
+
+f = f_example
 
 X_MIN, Y_MIN, X_MAX, Y_MAX = -RADIUS, -RADIUS, RADIUS, RADIUS
 BBOX = (X_MIN, Y_MIN, X_MAX, Y_MAX)
-marching_squares(f, BBOX)
-print(MARCHING_SQUARES_RESULT)
 
-# -----------------------------------------------------------------------------
-# * Plotting
-# -----------------------------------------------------------------------------
-x = np.linspace(X_MIN, X_MAX, 100)
-y = np.linspace(Y_MIN, Y_MAX, 100)
-X, Y = np.meshgrid(x, y)
-Z = f(X, Y)
+draw_curve(f, './image.eps', X_MIN, Y_MIN, X_MAX, Y_MAX, 0.1)
 
-fig = plt.figure(figsize=(10, 10))
-plt.contour(X, Y, Z, levels=[0], colors='black', linestyles='dashed')
-for line in MARCHING_SQUARES_RESULT:
-    first, second = zip(*line)
-    plt.plot(first, second, 'r')
-    plt.scatter(first, second, color='r', s=10)
-plt.xlabel('x')
-plt.ylabel('y')
-plt.xlim(X_MIN - 0.1, X_MAX + 0.1)
-plt.ylim(Y_MIN - 0.1, Y_MAX + 0.1)
-fig.savefig('marching_squares.eps', format='eps')
-plt.show()
+# # -----------------------------------------------------------------------------
+# # * Plotting
+# # -----------------------------------------------------------------------------
+# marching_squares(f, BBOX)
+# print(MARCHING_SQUARES_RESULT)
+
+# x = np.linspace(X_MIN, X_MAX, 100)
+# y = np.linspace(Y_MIN, Y_MAX, 100)
+# X, Y = np.meshgrid(x, y)
+# Z = f(X, Y)
+
+# fig = plt.figure(figsize=(10, 10))
+# plt.contour(X, Y, Z, levels=[0], colors='black', linestyles='dashed')
+# for line in MARCHING_SQUARES_RESULT:
+#     first, second = zip(*line)
+#     plt.plot(first, second, 'r')
+#     # plt.scatter(first, second, color='r', s=10)
+# plt.xlabel('x')
+# plt.ylabel('y')
+# plt.xlim(X_MIN - 0.1, X_MAX + 0.1)
+# plt.ylim(Y_MIN - 0.1, Y_MAX + 0.1)
+# fig.savefig('marching_squares.eps', format='eps')
+# plt.show()
