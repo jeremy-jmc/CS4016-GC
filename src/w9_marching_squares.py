@@ -2,7 +2,6 @@ import numpy as np
 from typing import Callable
 import matplotlib.pyplot as plt
 
-
 MAX_DEPTH = 10
 N_SAMPLING = 100000
 MARCHING_SQUARES_RESULT = []
@@ -19,7 +18,7 @@ def generate_random_points(n: int, x_range: tuple, y_range: tuple) -> np.ndarray
     return np.column_stack((x_points, y_points))
 
 
-def add_line(f: Callable, bbox: tuple):
+def add_line(f: Callable | list, bbox: tuple):
     x_min, y_min, x_max, y_max = bbox
     x_mid = (x_max + x_min) / 2
     y_mid = (y_max + y_min) / 2
@@ -58,13 +57,16 @@ def add_line(f: Callable, bbox: tuple):
         MARCHING_SQUARES_RESULT.append(new_line)
 
 
-def marching_squares(f: Callable, bbox: tuple, depth: int = 0, precision: float = 0.05):
+def marching_squares(f: Callable | list, bbox: tuple, depth: int = 0, precision: float = 0.025):
     if depth == 0:
         MARCHING_SQUARES_RESULT.clear()
     
     x_min, y_min, x_max, y_max = bbox
     p_sampling = generate_random_points(N_SAMPLING, (x_min, x_max), (y_min, y_max))
-    eval_points = f(p_sampling[:, 0], p_sampling[:, 1]) # np.array([f(*point) for point in p_sampling])
+    try:
+        eval_points = f(p_sampling[:, 0], p_sampling[:, 1])
+    except:
+        eval_points = np.array([f(*point) for point in p_sampling])
     
     # * contar (+) (-) (0)
     n_positives = len(eval_points[eval_points > 0])       # outside: todos -> afuera
@@ -99,7 +101,7 @@ def marching_squares(f: Callable, bbox: tuple, depth: int = 0, precision: float 
     marching_squares(f, (x_mid, y_min, x_max, y_mid), depth + 1)
 
 
-def draw_curve(f: Callable, output_file: str = './image.eps', 
+def draw_curve(f: Callable | list, output_filename: str = './image.eps', 
               min_x: int = -1, min_y: int = -1, max_x: int = 1, max_y: int = 1, 
               precision: float =  0.05):
     global MARCHING_SQUARES_RESULT
@@ -109,62 +111,112 @@ def draw_curve(f: Callable, output_file: str = './image.eps',
     marching_squares(f, BBOX, precision=precision)
 
     # Plot and save
-    x = np.linspace(min_x, max_x, 100)
-    y = np.linspace(min_y, max_y, 100)
-    X, Y = np.meshgrid(x, y)
-    Z = f(X, Y)
-
     fig = plt.figure(figsize=(10, 10))
-    plt.contour(X, Y, Z, levels=[0], colors='black', linestyles='dashed')
     for line in MARCHING_SQUARES_RESULT:
         first, second = zip(*line)
-        plt.plot(first, second, 'r')
+        plt.plot(first, second, 'k-')
+        plt.fill(first, second, 'b', alpha=0.5)
         # plt.scatter(first, second, color='r', s=10)
     plt.xlabel('x')
     plt.ylabel('y')
     plt.xlim(min_x - 0.1, max_x + 0.1)
     plt.ylim(min_y - 0.1, max_y + 0.1)  # Fixed typo: min_y instead of min_y
-    fig.savefig(output_file, format='eps')
+    fig.savefig(output_filename, format='eps')
     plt.close(fig)  # Close the figure to avoid displaying an empty canvas
 
 # -----------------------------------------------------------------------------
 # * Main    
 # -----------------------------------------------------------------------------
-RADIUS = 3
+RADIUS = 5
 
-def f_circle(x: float, y: float, radius: int = RADIUS) -> float:
-    return x**2 + y**2 - radius**2
+def f_circle(x: float, y: float, radius: int = RADIUS, offset: int = 0) -> float:
+    return (x - offset)**2 + (y - offset)**2 - radius**2 
+
 
 def f_example(x, y):
     return 0.004 + 0.110 * x - 0.177 * y - 0.174 * x**2 + 0.224 * x * y - 0.303 * y**2 - 0.168 * x**3 + 0.327 * x**2 * y - 0.087 * x * y**2 - 0.013 * y**3 + 0.235 * x**4 - 0.667 * x**3 * y + 0.745 * x**2 * y**2 - 0.029 * x * y**3 + 0.072 * y**4
 
-f = f_example
 
+def f_mix(x, y):
+    valor_1 = f_circle(x, y, radius=2)
+    valor_2 = f_circle(x, y, radius=2, offset=2)
+    
+    result = np.where(
+        # dentro del circulo
+        (valor_1 < 0) | (valor_2 < 0), -1,
+        np.where(
+            # en el borde del circulo
+            (valor_1 == 0) | (valor_2 == 0), 0,
+            1
+        )
+    )
+    return result
+
+scene = {
+    'op': 'union',
+    'function': '',
+    'childs': [
+        {
+            'op': '', 
+            'function': '(x-0.5)**2 + (y - 0.5)**2 - 2', 
+            'childs': []
+        },
+        {
+            'op': '', 
+            'function': '(x+0.3)**2 + (y + 0.3)**2 - 1', 
+            'childs': []
+        }
+    ]
+}
+
+def eval_obj(json_obj: dict, x, y):
+    if json_obj['op'] == 'union':
+        n_zeros = 0
+        n_pos = 0
+        n_neg = 0
+
+        for child in json_obj['childs']:
+            result_eval = eval_obj(child, x, y)
+            if result_eval == 0:
+                n_zeros = n_zeros + 1
+            elif result_eval > 0:
+                n_pos = n_pos + 1
+            else:
+                n_neg = n_neg + 1
+        
+        if n_neg > 0: 
+            return -1
+        if  n_zeros > 0:
+            return 0
+        return 1
+    elif json_obj['op'] == '':
+        # cuando es 1 funcion
+        return eval(json_obj['function'], {'x': x, 'y': y})
+
+
+def f_json(x, y) -> int:
+    return eval_obj(scene, x, y)
+
+# -----------------------------------------------------------------------------
+# * Plotting
+# -----------------------------------------------------------------------------
 X_MIN, Y_MIN, X_MAX, Y_MAX = -RADIUS, -RADIUS, RADIUS, RADIUS
 BBOX = (X_MIN, Y_MIN, X_MAX, Y_MAX)
 
-draw_curve(f, './image.eps', X_MIN, Y_MIN, X_MAX, Y_MAX, 0.1)
+f = f_json
+# draw_curve(f, './image.eps', X_MIN, Y_MIN, X_MAX, Y_MAX, 0.01)
+marching_squares(f, BBOX, precision=0.01)
+print(MARCHING_SQUARES_RESULT)
 
-# # -----------------------------------------------------------------------------
-# # * Plotting
-# # -----------------------------------------------------------------------------
-# marching_squares(f, BBOX)
-# print(MARCHING_SQUARES_RESULT)
-
-# x = np.linspace(X_MIN, X_MAX, 100)
-# y = np.linspace(Y_MIN, Y_MAX, 100)
-# X, Y = np.meshgrid(x, y)
-# Z = f(X, Y)
-
-# fig = plt.figure(figsize=(10, 10))
-# plt.contour(X, Y, Z, levels=[0], colors='black', linestyles='dashed')
-# for line in MARCHING_SQUARES_RESULT:
-#     first, second = zip(*line)
-#     plt.plot(first, second, 'r')
-#     # plt.scatter(first, second, color='r', s=10)
-# plt.xlabel('x')
-# plt.ylabel('y')
-# plt.xlim(X_MIN - 0.1, X_MAX + 0.1)
-# plt.ylim(Y_MIN - 0.1, Y_MAX + 0.1)
-# fig.savefig('marching_squares.eps', format='eps')
-# plt.show()
+fig = plt.figure(figsize=(10, 10))
+for line in MARCHING_SQUARES_RESULT:
+    first, second = zip(*line)
+    plt.plot(first, second, 'k-')
+    plt.fill(first, second, 'b', alpha=0.5)
+    plt.scatter(first, second, color='r', s=10)
+plt.xlabel('x')
+plt.ylabel('y')
+plt.xlim(X_MIN - 0.1, X_MAX + 0.1)
+plt.ylim(X_MIN - 0.1, X_MAX + 0.1)
+fig.savefig('marching_squares.eps', format='eps')
+plt.show()
