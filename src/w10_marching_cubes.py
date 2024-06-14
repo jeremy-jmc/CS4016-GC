@@ -352,7 +352,7 @@ def vertex_interpolation(isovalue, p1, p2, f_p1, f_p2):
     p = p1 + mu * (p2 - p1)
     return p
 
-def marching_cubes(f, x_range, y_range, z_range, isovalue):
+def marching_cubes(f, x_range, y_range, z_range, isovalue = 0):
     vertices = []
     faces = []
     
@@ -376,7 +376,7 @@ def marching_cubes(f, x_range, y_range, z_range, isovalue):
                 # Classify the cube
                 cube_index = 0
                 for l in range(8):
-                    if f_cube[l] < isovalue:
+                    if f_cube[l] > isovalue:
                         cube_index |= 1 << l
 
                 # Cube is entirely in/out of the surface

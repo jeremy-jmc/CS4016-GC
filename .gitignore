@@ -14,3 +14,5 @@ zips/**/output
 *.fls
 *.log
 *.synctex.gz
+
+__pycache__/

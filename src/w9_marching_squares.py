@@ -63,10 +63,10 @@ def marching_squares(f: Callable | list, bbox: tuple, depth: int = 0, precision:
     
     x_min, y_min, x_max, y_max = bbox
     p_sampling = generate_random_points(N_SAMPLING, (x_min, x_max), (y_min, y_max))
-    try:
-        eval_points = f(p_sampling[:, 0], p_sampling[:, 1])
-    except:
-        eval_points = np.array([f(*point) for point in p_sampling])
+    # try:
+    eval_points = f(p_sampling[:, 0], p_sampling[:, 1])
+    # except:
+    #     eval_points = np.array([f(*point) for point in p_sampling])
     
     # * contar (+) (-) (0)
     n_positives = len(eval_points[eval_points > 0])       # outside: todos -> afuera
@@ -169,11 +169,9 @@ scene = {
     ]
 }
 
-def eval_obj(json_obj: dict, x, y):
+def eval_obj(json_obj: dict, x: int, y: int):
     if json_obj['op'] == 'union':
-        n_zeros = 0
-        n_pos = 0
-        n_neg = 0
+        n_zeros, n_pos, n_neg = 0, 0, 0
 
         for child in json_obj['childs']:
             result_eval = eval_obj(child, x, y)
@@ -183,11 +181,13 @@ def eval_obj(json_obj: dict, x, y):
                 n_pos = n_pos + 1
             else:
                 n_neg = n_neg + 1
-        
+        # dentro
         if n_neg > 0: 
             return -1
-        if  n_zeros > 0:
+        # borde
+        if n_zeros > 0:
             return 0
+        # fuera
         return 1
     elif json_obj['op'] == '':
         # cuando es 1 funcion
@@ -203,9 +203,9 @@ def f_json(x, y) -> int:
 X_MIN, Y_MIN, X_MAX, Y_MAX = -RADIUS, -RADIUS, RADIUS, RADIUS
 BBOX = (X_MIN, Y_MIN, X_MAX, Y_MAX)
 
-f = f_json
+f = f_mix
 # draw_curve(f, './image.eps', X_MIN, Y_MIN, X_MAX, Y_MAX, 0.01)
-marching_squares(f, BBOX, precision=0.01)
+marching_squares(f, BBOX, precision=0.5)
 print(MARCHING_SQUARES_RESULT)
 
 fig = plt.figure(figsize=(10, 10))
