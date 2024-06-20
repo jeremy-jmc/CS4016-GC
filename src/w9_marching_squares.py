@@ -63,11 +63,16 @@ def marching_squares(f: Callable | list, bbox: tuple, depth: int = 0, precision:
     
     x_min, y_min, x_max, y_max = bbox
     p_sampling = generate_random_points(N_SAMPLING, (x_min, x_max), (y_min, y_max))
+    
     # try:
     eval_points = f(p_sampling[:, 0], p_sampling[:, 1])
     # except:
-    #     eval_points = np.array([f(*point) for point in p_sampling])
+    # eval_points = np.array([f(*point) for point in p_sampling])
+    # vectorized_func = np.vectorize(f)
+    # eval_points = vectorized_func(p_sampling[:, 0], p_sampling[:, 1])
     
+    # print(eval_points)
+
     # * contar (+) (-) (0)
     n_positives = len(eval_points[eval_points > 0])       # outside: todos -> afuera
     n_negatives = len(eval_points[eval_points < 0])       # inside: todos -> adentro
@@ -169,10 +174,30 @@ scene = {
     ]
 }
 
-def eval_obj(json_obj: dict, x: int, y: int):
-    if json_obj['op'] == 'union':
-        n_zeros, n_pos, n_neg = 0, 0, 0
+def transform_functions_to_lambdas(node):
+    if 'function' in node and node['function']:
+        node['function'] = eval(f"lambda x, y: {node['function']}")
+    if 'childs' in node and node['childs']:
+        for child in node['childs']:
+            transform_functions_to_lambdas(child)
 
+transform_functions_to_lambdas(scene)
+
+def eval_obj(json_obj: dict, x: int, y: int) -> np.ndarray:
+    if json_obj['op'] == 'union':
+        # result_childs = np.array([eval_obj(child, x, y) for child in json_obj['childs']])
+        
+        result_childs = []
+        for child in json_obj['childs']:
+            result_childs.append(eval_obj(child, x, y))
+        
+        n_neg = np.sum(np.array(result_childs) < 0, axis=0)
+        n_zeros = np.sum(np.array(result_childs) == 0, axis=0)
+        result = np.where(n_neg > 0, -1, np.where(n_zeros > 0, 0, 1))
+
+        return result
+
+        n_zeros, n_pos, n_neg = 0, 0, 0
         for child in json_obj['childs']:
             result_eval = eval_obj(child, x, y)
             if result_eval == 0:
@@ -189,9 +214,13 @@ def eval_obj(json_obj: dict, x: int, y: int):
             return 0
         # fuera
         return 1
+    elif json_obj['op'] == 'intersection':
+        # TODO: implementar
+        pass
     elif json_obj['op'] == '':
         # cuando es 1 funcion
-        return eval(json_obj['function'], {'x': x, 'y': y})
+        return json_obj['function'](x=x, y=y)
+        # return eval(json_obj['function'], {'x': x, 'y': y})
 
 
 def f_json(x, y) -> int:
@@ -203,9 +232,16 @@ def f_json(x, y) -> int:
 X_MIN, Y_MIN, X_MAX, Y_MAX = -RADIUS, -RADIUS, RADIUS, RADIUS
 BBOX = (X_MIN, Y_MIN, X_MAX, Y_MAX)
 
-f = f_mix
+# p = generate_random_points(N_SAMPLING, (10*X_MIN, 10*X_MAX), (10*Y_MIN, 10*Y_MAX))
+# plt.figure()
+# plt.scatter(p[:, 0], p[:, 1], s=1)
+# plt.show()
+
+f = f_json
 # draw_curve(f, './image.eps', X_MIN, Y_MIN, X_MAX, Y_MAX, 0.01)
-marching_squares(f, BBOX, precision=0.5)
+
+marching_squares(f, BBOX, precision=0.75)
+
 print(MARCHING_SQUARES_RESULT)
 
 fig = plt.figure(figsize=(10, 10))
