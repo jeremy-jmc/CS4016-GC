@@ -3,7 +3,7 @@ from typing import Callable
 import matplotlib.pyplot as plt
 
 MAX_DEPTH = 10
-N_SAMPLING = 100000
+N_SAMPLING = 1000
 MARCHING_SQUARES_RESULT = []
 
 def generate_random_points(n: int, x_range: tuple, y_range: tuple) -> np.ndarray:
