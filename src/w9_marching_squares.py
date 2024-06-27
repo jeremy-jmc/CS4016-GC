@@ -240,7 +240,7 @@ BBOX = (X_MIN, Y_MIN, X_MAX, Y_MAX)
 f = f_json
 # draw_curve(f, './image.eps', X_MIN, Y_MIN, X_MAX, Y_MAX, 0.01)
 
-marching_squares(f, BBOX, precision=0.75)
+marching_squares(f, BBOX, precision=0.05)
 
 print(MARCHING_SQUARES_RESULT)
 
