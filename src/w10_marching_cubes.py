@@ -35,7 +35,7 @@ Step 7:
 CASES = json.load(open("./cases.json", "r"))
 # print(CASES)
 
-N_SAMPLING = 10000
+N_SAMPLING = 1000000
 
 
 class Mesh:
@@ -209,7 +209,7 @@ def marching_cubes_compute(f, cube_box: tuple, precision: float = 0.025, n_sampl
     n_positives = len(eval_points[eval_points > 0])  # outside: todos -> afuera
     n_negatives = len(eval_points[eval_points < 0])  # inside: todos -> adentro
     n_zeros = len(eval_points[eval_points == 0])  # border
-
+    
     if n_zeros == 0:
         if n_negatives > 0 and n_positives == 0:
             # cubo esta totalmente adentro
@@ -227,7 +227,7 @@ def marching_cubes_compute(f, cube_box: tuple, precision: float = 0.025, n_sampl
         return
 
     for each_cube in divide_cube(cube_box):
-        marching_cubes_compute(f, each_cube, precision, n_sampling // 8, depth + 1)
+        marching_cubes_compute(f, each_cube, precision, min(n_sampling // 8, 100), depth + 1)
 
 
 def eval_obj(json_obj: dict, x, y, z) -> np.ndarray:
@@ -285,6 +285,52 @@ scene = {
     ],
 }
 
+
+scene = {
+    "op": "union",
+    "function": "",
+    "childs": [
+        {
+            "op": "union",
+            "function": "",
+            "childs": [
+                {
+                    "op": "union",
+                    "function": "",
+                    "childs": [
+                        {
+                            "op": "",
+                            "function": "x**2 + y**2 + z**2 - 2 ** 1",
+                            "childs": [],
+                        },
+                        {
+                            "op": "",
+                            "function": "(x-2)**2 + (y-2)**2 + (z-2)**2 - 2 ** 2",
+                            "childs": [],
+                        },
+                    ]
+                },
+            ]
+        },
+        {
+            "op": "union",
+            "function": "",
+            "childs": [
+                {
+                    "op": "",
+                    "function": "(x+10)**2 + (y+10)**2 + (z+10)**2 - 3 ** 2",
+                    "childs": [],
+                },
+                {
+                    "op": "",
+                    "function": "(x+15)**2 + (y+15)**2 + (z+15)**2 - 6 ** 2",
+                    "childs": [],
+                }
+            ]
+        }
+    ]
+}
+
 # transform_functions_to_lambdas(scene)
 # print(scene)
 
@@ -329,23 +375,21 @@ def marching_cubes(
 
 example_json = scene
 
-marching_cubes(
-    example_json, "./example-marching-squares_1.off", 
-    -10, -10, 10, 10, -10, 10, 0.05
-)
+# import cProfile
+# cProfile.run('marching_cubes(example_json, "./example-marching-ga.off", -100, -100, 100, 100, -100, 100, 0.1)', sort='cumtime')
+
+
+# marching_cubes(
+#     example_json, "./example-marching-ga.off", 
+#     -100, -100, 100, 100, -100, 100, 0.1
+# )
 
 # ! WARNING: order of the arguments
 marching_cubes(
     # sphere of radius 1 centered at (2, 2, 2)
     {"op": "", "function": "(x-2)^2+(y-2)^2+(z-2)^2-1", "childs": []},
     "./example-marching-cubes_2.off",
-    -5,
-    -5,
-    -5,
-    6,
-    6,
-    6,
-    0.1,
+    -5, -5, 10, 10, -5, 10, 0.1
 )
 
 marching_cubes(
@@ -358,11 +402,5 @@ marching_cubes(
         ],
     },
     "./example-marching-cubes_3.off",
-    -5,
-    -5,
-    -5,
-    6,
-    6,
-    6,
-    0.1,
+    -5, -5, 10, 10, -5, 10, 0.1
 )
