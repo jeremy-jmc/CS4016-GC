@@ -18,5 +18,3 @@ zips/**/output
 __pycache__/
 *.pt
 *.pth
-*.off
-*.ply

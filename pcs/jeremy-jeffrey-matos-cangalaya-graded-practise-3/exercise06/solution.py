@@ -167,18 +167,47 @@ def rotate_mesh_around_line(
     else:
         raise ValueError("Only OFF and PLY files are supported.")
     
-    print(vertices[0])
     
-    # TODO: Rotate the vertices around the axis of rotation
+    vertices_np = np.array(vertices)
+    vertices_np, color = (vertices_np[:, :3], vertices_np[:, 3:]) if len(vertices[0]) > 3 else (vertices_np, None)
 
+    p, d = axis_of_rotation
+    p = np.array(p)
+    d = np.array(d)
+    d = d/ np.linalg.norm(d)
+    
+    alpha_rad = np.deg2rad(alpha)
+
+    d_x, d_y, d_z = d
+
+    # Matriz de rotación para rotar alpha radianes alrededor del vector d
+    rotation_matrix = np.array([
+        [np.cos(alpha_rad) + d_x**2 * (1 - np.cos(alpha_rad)), 
+         d_x * d_y * (1 - np.cos(alpha_rad)) - d_z * np.sin(alpha_rad), 
+         d_x * d_z * (1 - np.cos(alpha_rad)) + d_y * np.sin(alpha_rad)],
+        [d_y * d_x * (1 - np.cos(alpha_rad)) + d_z * np.sin(alpha_rad), 
+         np.cos(alpha_rad) + d_y**2 * (1 - np.cos(alpha_rad)), 
+         d_y * d_z * (1 - np.cos(alpha_rad)) - d_x * np.sin(alpha_rad)],
+        [d_z * d_x * (1 - np.cos(alpha_rad)) - d_y * np.sin(alpha_rad), 
+         d_z * d_y * (1 - np.cos(alpha_rad)) + d_x * np.sin(alpha_rad), 
+         np.cos(alpha_rad) + d_z**2 * (1 - np.cos(alpha_rad))]
+    ])
+
+    # Aplicar la rotación a los vértices
+    rotated_vertices_np = np.dot(vertices_np - p, rotation_matrix.T) + p
+
+    rotated_vertices = rotated_vertices_np.tolist()
+    if color is not None:
+        rotated_vertices = [v + list(c) for v, c in zip(rotated_vertices, color)]
+    
     if full_path_output_mesh.endswith(".off"):
-        create_off(full_path_output_mesh, vertices, faces)
+        create_off(full_path_output_mesh, rotated_vertices, faces)
     elif full_path_output_mesh.endswith(".ply"):
-        create_ply(full_path_output_mesh, vertices, faces)
+        create_ply(full_path_output_mesh, rotated_vertices, faces)
 
 
 if __name__ == "__main__":
-    angle = 30
+    angle = 60
     rotate_mesh_around_line(
         full_path_input_mesh="sphere-rectangles-nocolor.off",
         axis_of_rotation=((0, 0, 0), (0, 0, 1)),
@@ -186,7 +215,7 @@ if __name__ == "__main__":
         full_path_output_mesh=f"sphere-rectangles-rotated-{angle}.off",
     )
 
-    angle = 60
+    angle = 90
     rotate_mesh_around_line(
         full_path_input_mesh="sphere-rectangles-nocolor.ply",
         axis_of_rotation=((0, 0, 0), (0, 0, 1)),
