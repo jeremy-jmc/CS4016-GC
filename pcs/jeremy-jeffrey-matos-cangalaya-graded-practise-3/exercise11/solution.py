@@ -1334,7 +1334,7 @@ CASES = [
 ]
 
 
-N_SAMPLING = 1000
+N_SAMPLING = 10000
 
 class Mesh:
     def __init__(self):
@@ -1550,12 +1550,16 @@ def eval_obj(json_obj: dict, x: np.ndarray, y: np.ndarray, z: np.ndarray) -> np.
 
     elif json_obj['op'] == 'difference':
         first_child_result = eval_obj(json_obj['childs'][0], x, y, z)
-        other_children_results = np.array([eval_obj(child, x, y, z) for child in json_obj['childs'][1:]])
-        result = np.where(first_child_result < 0,  # First child is inside
-                          np.max(other_children_results, axis=0),  # Others must be outside
-                          1)  # Default to outside
-        result = np.where(result < 0, -1, 1)  # Difference: inside if in first but not in others
+        other_children_results = [eval_obj(child, x, y, z) for child in json_obj['childs'][1:]]
+
+        other_children_union = np.full_like(first_child_result, 1)
+        for result in other_children_results:
+            other_children_union = np.minimum(other_children_union, result)
         
+        result = np.where(first_child_result < 0, 
+                          np.where(other_children_union < 0, 1, -1), 
+                          np.where(other_children_union < 0, 1, 1))
+
         return result
 
 
@@ -1605,7 +1609,7 @@ if __name__ == "__main__":
 
     marching_cubes(
         {
-            "op": "intersection",
+            "op": "difference",
             "function": "",
             "childs": [
                 {"op": "", "function": "(x-2)^2+(y-2)^2+(z-2)^2-1", "childs": []},
