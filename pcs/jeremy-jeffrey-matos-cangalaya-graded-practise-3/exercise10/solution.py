@@ -117,6 +117,7 @@ def draw_curve(output_filename: str = './image.eps',
     plt.xlim(min_x - 0.1, max_x + 0.1)
     plt.ylim(min_y - 0.1, max_y + 0.1)
     fig.savefig(output_filename, format='eps')
+    plt.show()
     plt.close(fig)  # Close the figure to avoid displaying an empty canvas
 
 
@@ -142,29 +143,27 @@ def eval_obj(json_obj: dict, x: int, y: int) -> np.ndarray:
 
         return result
 
-        n_zeros, n_pos, n_neg = 0, 0, 0
-        for child in json_obj['childs']:
-            result_eval = eval_obj(child, x, y)
-            if result_eval == 0:
-                n_zeros = n_zeros + 1
-            elif result_eval > 0:
-                n_pos = n_pos + 1
-            else:
-                n_neg = n_neg + 1
-        # dentro
-        if n_neg > 0: 
-            return -1
-        # borde
-        if n_zeros > 0:
-            return 0
-        # fuera
-        return 1
     elif json_obj['op'] == 'intersection':
-        # TODO: implementar
-        pass
+        result_childs = [eval_obj(child, x, y) for child in json_obj['childs']]
+        
+        n_pos = np.sum(np.array(result_childs) > 0, axis=0)
+        n_zeros = np.sum(np.array(result_childs) == 0, axis=0)
+        result = np.where(n_pos > 0, 1, np.where(n_zeros > 0, 0, -1))
+        
+        return result
     elif json_obj['op'] == 'difference':
-        # TODO: implementar
-        pass
+        first_child_result = eval_obj(json_obj['childs'][0], x, y)
+        other_children_results = [eval_obj(child, x, y) for child in json_obj['childs'][1:]]
+
+        other_children_union = np.full_like(first_child_result, 1)
+        for result in other_children_results:
+            other_children_union = np.minimum(other_children_union, result)
+        
+        result = np.where(first_child_result < 0, 
+                          np.where(other_children_union < 0, 1, -1), 
+                          np.where(other_children_union < 0, 1, 1))
+
+        return result
     elif json_obj['op'] == '':
         # cuando es 1 funcion
         return json_obj['function'](x=x, y=y)
@@ -185,7 +184,7 @@ def marching_squares(json_object_describing_curve: dict,
 
 
 example_json = {
-    'op': 'union',
+    'op': 'difference',
     'function': '',
     'childs': [
         {'op': '', 'function': '(x-2)^2 + (y-3)^2 - 4^2', 'childs': []},
@@ -200,7 +199,7 @@ if __name__ == '__main__':
         -5, 
         -5, 
         6, 
-        6, 
+        10, 
         0.1
     )
 
