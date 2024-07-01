@@ -38,8 +38,8 @@ def create_ply(output_file: str, vertices: list, faces: list):
 def sphere_with_quadrilateral_faces(full_path_output_file: str, radius: float, center: tuple):
     vertices, faces = [], []
 
-    theta_steps = 180
-    phi_steps = 360
+    theta_steps = 18
+    phi_steps = 36
 
     center_x, center_y, center_z = center
     for theta in range(0, theta_steps + 1):

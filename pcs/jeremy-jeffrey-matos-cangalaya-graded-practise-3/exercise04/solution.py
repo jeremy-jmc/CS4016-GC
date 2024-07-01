@@ -39,8 +39,8 @@ def create_ply(output_file: str, vertices: list, faces: list):
 def sphere_with_triangular_faces(full_path_output_file: str, radius: float, center: tuple):
     vertices, faces = [], []
 
-    theta_steps = 180
-    phi_steps = 360
+    theta_steps = 90
+    phi_steps = 180
 
     center_x, center_y, center_z = center
     for theta in range(0, theta_steps + 1):
@@ -64,10 +64,10 @@ def sphere_with_triangular_faces(full_path_output_file: str, radius: float, cent
 
 if __name__ == "__main__":
     sphere_with_triangular_faces(
-        full_path_output_file="sphere-triangles.off", radius=5, center=(2, 3, 5)
+        full_path_output_file="sphere-triangles.off", radius=5, center=(0, 0, 10)
     )
     # --> Produces an OFF mesh of a sphere of radius 5 centered at (2,3,5)
     sphere_with_triangular_faces(
-        full_path_output_file="sphere-triangles.ply", radius=5, center=(2, 3, 5)
+        full_path_output_file="sphere-triangles.ply", radius=5, center=(0, 0, 10)
     )
     # --> Produces a PLY mesh of a sphere of radius 5 centered at (2,3,5)
