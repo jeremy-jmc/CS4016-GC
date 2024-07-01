@@ -220,7 +220,7 @@ if __name__ == "__main__":
         full_path_input_mesh="sphere-rectangles-nocolor.ply",
         axis_of_rotation=((0, 0, 0), (0, 0, 1)),
         alpha=angle,
-        full_path_output_mesh=f"sphere-rectangles-rotated-{angle}.off",
+        full_path_output_mesh=f"sphere-rectangles-rotated-{angle}.ply",
     )
 
     rotate_mesh_around_line(

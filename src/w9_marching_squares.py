@@ -217,6 +217,9 @@ def eval_obj(json_obj: dict, x: int, y: int) -> np.ndarray:
     elif json_obj['op'] == 'intersection':
         # TODO: implementar
         pass
+    elif json_obj['op'] == 'difference':
+        # TODO: implementar
+        pass
     elif json_obj['op'] == '':
         # cuando es 1 funcion
         return json_obj['function'](x=x, y=y)
