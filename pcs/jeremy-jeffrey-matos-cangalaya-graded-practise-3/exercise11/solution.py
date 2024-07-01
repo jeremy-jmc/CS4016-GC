@@ -1541,12 +1541,24 @@ def eval_obj(json_obj: dict, x: np.ndarray, y: np.ndarray, z: np.ndarray) -> np.
         result = np.where(n_neg > 0, -1, np.where(n_zeros > 0, 0, 1))
 
         return result
-    elif json_obj["op"] == "intersection":
-        # TODO: implementar
-        pass
-    elif json_obj["op"] == "difference":
-        # TODO: implementar
-        pass
+    elif json_obj['op'] == 'intersection':
+        first_child_result = eval_obj(json_obj['childs'][0], x, y, z)
+        other_children_results = np.array([eval_obj(child, x, y, z) for child in json_obj['childs'][1:]])
+        result = np.where(first_child_result < 0, np.min(other_children_results, axis=0), 1)
+        result = np.where(result >= 0, 1, -1)  # Difference: inside if in first but not in others
+        return result
+
+    elif json_obj['op'] == 'difference':
+        first_child_result = eval_obj(json_obj['childs'][0], x, y, z)
+        other_children_results = np.array([eval_obj(child, x, y, z) for child in json_obj['childs'][1:]])
+        result = np.where(first_child_result < 0,  # First child is inside
+                          np.max(other_children_results, axis=0),  # Others must be outside
+                          1)  # Default to outside
+        result = np.where(result < 0, -1, 1)  # Difference: inside if in first but not in others
+        
+        return result
+
+
     elif json_obj["op"] == "":
         return json_obj["function"](x=x, y=y, z=z)
 
@@ -1593,11 +1605,11 @@ if __name__ == "__main__":
 
     marching_cubes(
         {
-            "op": "union",
+            "op": "intersection",
             "function": "",
             "childs": [
                 {"op": "", "function": "(x-2)^2+(y-2)^2+(z-2)^2-1", "childs": []},
-                {"op": "", "function": "(x-4)^2+(y-2)^2+(z-2)^2-1", "childs": []},
+                {"op": "", "function": "(x-3)^2+(y-2)^2+(z-2)^2-1", "childs": []},
             ],
         },
         "./example-marching-cubes_3.off",
