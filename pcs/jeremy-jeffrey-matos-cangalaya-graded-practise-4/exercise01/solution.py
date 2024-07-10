@@ -7,7 +7,7 @@ def load_mesh(file_path: str) -> np.ndarray:
     with open(file_path, "r") as file:
         lines = file.readlines()
 
-    if lines[0].strip() != "OFF":
+    if "OFF" not in lines[0].strip():
         raise ValueError("The provided file is not in OFF format")
 
     # Read the number of vertices, faces, and edges
@@ -17,9 +17,11 @@ def load_mesh(file_path: str) -> np.ndarray:
     # Read the vertex data
     vertices = []
     for i in range(2, 2 + num_vertices):
-        vertex = list(map(float, lines[i].strip().split()))
-        vertices.append(vertex)
-
+        try:
+            vertex = list(map(float, lines[i].strip().split()[:3]))
+            vertices.append(vertex)
+        except:
+            continue
     return np.array(vertices)
 
 
@@ -85,14 +87,15 @@ def project_points(
 
     cv2.imwrite(full_path_output, output_image)
 
-
+optical = [1000, 1, 20, 2, 8, 8]
 for idx, path in enumerate(glob.glob('../pc4-example-inputs/meshes-for-exercises-1-2-3/*.off')):
     try:
+        print(path)
         project_points(
             full_path_input_mesh=path,
             optical_center_x=0.0,
-            optical_center_y=10.0,
-            optical_center_z=1000.0,
+            optical_center_y=0.0,
+            optical_center_z=optical[idx],
             optical_axis_x=0.0,
             optical_axis_y=0.0,
             optical_axis_z=1.0,
