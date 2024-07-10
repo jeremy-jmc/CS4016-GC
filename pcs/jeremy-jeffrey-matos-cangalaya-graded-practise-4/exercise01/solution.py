@@ -87,15 +87,18 @@ def project_points(
 
 
 for idx, path in enumerate(glob.glob('../pc4-example-inputs/meshes-for-exercises-1-2-3/*.off')):
-    project_points(
-        full_path_input_mesh=path,
-        optical_center_x=0.0,
-        optical_center_y=10.0,
-        optical_center_z=1000.0,
-        optical_axis_x=0.0,
-        optical_axis_y=0.0,
-        optical_axis_z=1.0,
-        output_width_in_pixels=1920,
-        output_height_in_pixels=1080,
-        full_path_output=f'./result_{idx+1}.png',
-    )
+    try:
+        project_points(
+            full_path_input_mesh=path,
+            optical_center_x=0.0,
+            optical_center_y=10.0,
+            optical_center_z=1000.0,
+            optical_axis_x=0.0,
+            optical_axis_y=0.0,
+            optical_axis_z=1.0,
+            output_width_in_pixels=1920,
+            output_height_in_pixels=1080,
+            full_path_output=f'./result_{idx+1}.png',
+        )
+    except Exception as e:
+        print(e)
