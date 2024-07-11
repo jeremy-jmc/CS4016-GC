@@ -16,12 +16,11 @@ def load_off(file_path):
         n_verts, n_faces, _ = map(int, f.readline().strip().split())
         verts = []
         for _ in range(n_verts):
-            try:
+            face_info = f.readline().strip().split()
+            if '#' in face_info:
                 face_info = f.readline().strip().split()
-                face_indices = list(map(float, face_info[:3]))
-                verts.append(face_indices)
-            except:
-                n_verts+=1
+            face_indices = list(map(float, face_info[:3]))
+            verts.append(face_indices)
         faces = []
         for _ in range(n_faces):
             face_info = f.readline().strip().split()
@@ -46,7 +45,6 @@ def draw_mesh_on_top_of_marker(full_path_input_image, full_path_mesh, full_path_
     # Detect QR code
     qr_detector = cv2.QRCodeDetector()
     retval, points = qr_detector.detect(marker_image)
-    print(points)
     if not retval:
         raise ValueError("No QR code detected in the image.")
     points = points[0].reshape(-1, 2)
