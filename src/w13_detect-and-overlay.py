@@ -32,7 +32,7 @@ orb = cv2.ORB_create()
 kp_marker, des_marker = orb.detectAndCompute(marker_image, None)
 bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(5)
 
 while True:
     ret, frame = cap.read()

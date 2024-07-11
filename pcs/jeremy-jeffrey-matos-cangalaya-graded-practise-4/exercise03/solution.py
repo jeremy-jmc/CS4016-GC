@@ -1,8 +1,12 @@
 import cv2
 import numpy as np
 import tempfile
-from mayavi import mlab
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import glob
+
+orb = cv2.ORB_create()
+bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
 
 def load_off(file_path):
     with open(file_path, 'r') as f:
@@ -26,64 +30,82 @@ def load_off(file_path):
             faces.append(face_indices)
     return np.array(verts, dtype=np.float32), np.array(faces, dtype=np.uint32)
 
+def rotate_y(vertices, angle):
+    angle_rad = np.deg2rad(angle)
+    rotation_matrix = np.array([
+        [np.cos(angle_rad), 0, np.sin(angle_rad)],
+        [0, 1, 0],
+        [-np.sin(angle_rad), 0, np.cos(angle_rad)]
+    ])
+    return np.dot(vertices, rotation_matrix)
+
 def draw_mesh_on_top_of_marker(full_path_input_image, full_path_mesh, full_path_output_image):
-    # Load the input image
-    input_image = cv2.imread(full_path_input_image)
+    frame = cv2.imread(full_path_input_image)
+    marker_image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     
-    # Convert the image to grayscale
-    gray_image = cv2.cvtColor(input_image, cv2.IMREAD_GRAYSCALE)
-    
-    # Detect the QR code in the image
+    # Detect QR code
     qr_detector = cv2.QRCodeDetector()
-    retval, points = qr_detector.detect(gray_image)
-    
+    retval, points = qr_detector.detect(marker_image)
+    print(points)
     if not retval:
         raise ValueError("No QR code detected in the image.")
-    
-    # Get the bounding box of the QR code
-    points = points[0]
-    qr_bbox = np.array(points, dtype=np.float32)
-    
-    # Load the mesh from the .off file
-    verts, faces = load_off(full_path_mesh)
-    
-    # Compute the pose transformation
-    qr_center = np.mean(qr_bbox, axis=0)
-    qr_size = np.linalg.norm(qr_bbox[0] - qr_bbox[1])
-    
-    # Scale the mesh to fit the QR code
-    bbox_min = verts.min(axis=0)
-    bbox_max = verts.max(axis=0)
-    bbox_center = (bbox_max + bbox_min) / 2
-    bbox_size = np.linalg.norm(bbox_max - bbox_min)
-    scale_factor = qr_size / bbox_size
-    verts = (verts - bbox_center) * scale_factor + qr_center
-    
-    # Render the mesh using mayavi
-    mlab.figure(size=(800, 600), bgcolor=(1, 1, 1))
-    mlab.triangular_mesh(verts[:, 0], verts[:, 1], verts[:, 2], faces)
-    temp_file = tempfile.NamedTemporaryFile(suffix='.png', delete=False)
-    mlab.savefig(temp_file.name)
-    mlab.close()
-    
-    # Load the rendered mesh image
-    rendered_mesh_image = cv2.imread(temp_file.name)
-    
-    # Blend the rendered mesh with the original image
-    alpha = 0.6
-    blended_image = cv2.addWeighted(input_image, alpha, rendered_mesh_image, 1 - alpha, 0)
-    
-    # Save the output image
-    cv2.imwrite(full_path_output_image, blended_image)
+    points = points[0].reshape(-1, 2)
 
+    # Load and process 3D model image
+    verts, faces = load_off(full_path_mesh)
+    # Plotting
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.grid(False)
+    ax.axis('off')
+    ax.view_init(elev=90, azim=-90)
+    ax.add_collection3d(Poly3DCollection(verts[faces], alpha=0.25))
+    x_limits = [verts[:,0].min(), verts[:,0].max()]
+    y_limits = [verts[:,1].min(), verts[:,1].max()]
+    z_limits = [verts[:,2].min(), verts[:,2].max()]
+    max_range = np.array([x_limits, y_limits, z_limits]).ptp(axis=1).max() / 2
+
+    mid_x = sum(x_limits) / 2
+    mid_y = sum(y_limits) / 2
+    mid_z = sum(z_limits) / 2
+
+    ax.set_xlim(mid_x - max_range, mid_x + max_range)
+    ax.set_ylim(mid_y - max_range, mid_y + max_range)
+    ax.set_zlim(mid_z - max_range, mid_z + max_range)
+
+    # Save the figure
+    plt.savefig('model_image.png')
+    plt.close(fig)  # Close the figure to free memory
+
+    img_to_overlay = cv2.imread('model_image.png')
+
+    # Compute bounding box dimensions for resizing the overlay
+    qr_width = int(np.linalg.norm(points[0] - points[1]))
+    qr_height = int(np.linalg.norm(points[1] - points[2]))
+    img_to_overlay = cv2.resize(img_to_overlay, (qr_width, qr_height))
+
+    # Create a mask for the QR code area
+    mask = np.zeros(frame.shape[:2], dtype=np.uint8)
+    cv2.fillPoly(mask, [np.int32(points)], 255)
+
+    # Mask the area in the frame where the QR code is
+    frame[mask == 255] = 0
+
+    # Place the resized overlay image at the QR code location
+    x, y = np.min(points, axis=0).astype(int)
+    frame[y:y+qr_height, x:x+qr_width] = img_to_overlay
+
+    # Save the final result
+    cv2.imwrite(full_path_output_image, frame)
+
+# Example usage
 for idx, path in enumerate(glob.glob('../pc4-example-inputs/meshes-for-exercises-1-2-3/*.off')):
-    #try:
+    try:
         print(path)
         draw_mesh_on_top_of_marker(
             full_path_input_image='./qr.png',
             full_path_mesh=path,
             full_path_output_image=f'./result_02_{idx+1}.png',
         )
-        break
-    #except Exception as e:
-    #    print(e)
+    except Exception as e:
+        print(e)
