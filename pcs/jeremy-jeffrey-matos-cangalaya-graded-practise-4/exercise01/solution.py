@@ -11,7 +11,7 @@ def load_mesh(file_path: str) -> np.ndarray:
         raise ValueError("The provided file is not in OFF format")
 
     # Read the number of vertices, faces, and edges
-    parts = lines[1].strip().split()
+    parts = lines[1].strip  ().split()
     num_vertices = int(parts[0])
 
     # Read the vertex data
