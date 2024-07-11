@@ -95,14 +95,6 @@ def project_points(
     cv2.imwrite(full_path_output, output_image)
 
 
-#  Implement the function
-#  that uses the previous exercise to take a sequence of photos of the vertices present
-#  in the mesh described in full_path_input_mesh. Everything is exactly the same
-#  as in the previous exercise, but the parameters enclosed by square brackets are lists.
-#  The assumptions made in this exercise are the same as the ones made in the previ
-# ous exercise. The les produced as output must be {prefix_output_files}-1.png,
-#  {prefix_output_files}-2.png, ...
-
 def sequence_of_projections(
         full_path_input_mesh: str,
         optical_center_x: list,
@@ -201,17 +193,5 @@ if __name__ == "__main__":
                 prefix_output_files=f'{filename}',
             )
 
-            # sequence_of_projections(
-            #     full_path_input_mesh=path,
-            #     optical_center_x=[0.0],
-            #     optical_center_y=[0.0],
-            #     optical_center_z=[optical[idx]],
-            #     optical_axis_x=[0.0],
-            #     optical_axis_y=[0.0],
-            #     optical_axis_z=[1.0],
-            #     output_width_in_pixels=1920,
-            #     output_height_in_pixels=1080,
-            #     prefix_output_files=f'./output/{filename}',
-            # )
         except Exception as e:
             print(e)
