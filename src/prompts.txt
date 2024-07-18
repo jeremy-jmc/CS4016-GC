@@ -1,0 +1,52 @@
+
+
+VORONOI DIAGRAM
+	Diagram that tells us which is the closest point 
+
+	The Fortune's algorithm
+		1 point -> whole plane
+
+		2 points -> trazar una segmentos entre los 2 puntos y trazar la mediatriz/bisector
+
+		3 points -> circuncentro
+
+		4 points ->
+			computing the intersection of all (3) the half planes formed by each bisector between two points from source
+			n^2 lg n
+
+		sweep line
+			change the state of the sweep line under events
+
+		Bentley algorithm
+
+		la parabola tiene la propiedad de q cualquier punto es tan cercano al punto que a la sweep line
+			en eso se basa el Fortune Algorithm
+
+
+DELAUNAY TRIANGULATION
+	dual graph of Voronoi Diagram	
+		connect circuncenters of neighbor triangles
+
+
+QUADTREES
+	closest pair of points
+
+
+	what is the depth of quadtree using N points 
+		sabiendo la distancia minima entre 2 puntos es delta
+
+
+		S/2^D = delta/2
+		S/delta = 2^(D - 1)
+		log2(S/delta) + 1 = D
+
+	extremely balanced
+	Programming Pearls
+
+KD-Tree
+	elegir en q direccion/eje hacemos el corte
+
+
+pass polygon to find something in a quad-tree
+
+PC implementacion de Voronoi	
